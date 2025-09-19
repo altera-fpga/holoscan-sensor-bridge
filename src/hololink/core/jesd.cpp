@@ -17,6 +17,7 @@
 
 #include "jesd.hpp"
 #include "logging_internal.hpp"
+#include "timeout.hpp"
 
 #include <arpa/inet.h>
 #include <netinet/in.h>
@@ -52,8 +53,6 @@ void SpiDaemonThread::stop()
 
 void SpiDaemonThread::thread_func()
 {
-    constexpr int SPI_DAEMON_SERVER_PORT = 8400;
-    constexpr size_t MAX_SPI_DEVICES = 2;
     uint8_t buffer[300];
 
     struct sockaddr_in address;
@@ -135,7 +134,7 @@ void SpiDaemonThread::thread_func()
                 fmt::join(read_bytes, " "));
         } else if (msg->type == HSB_SPI_MSG_TYPE_JESD) {
             if (data_size > 0) {
-                HSB_LOG_ERROR("Extra data received with JESD command ({} bytes)", data_size);
+                HSB_LOG_DEBUG("Extra data received with JESD command ({} bytes)", data_size);
             }
 
             // Execute the JESD transition.
@@ -158,9 +157,39 @@ void SpiDaemonThread::thread_func()
     close(server_fd);
 }
 
+static const char* jesd_state_names[] = {
+    "JESD204_OP_DEVICE_INIT",
+    "JESD204_OP_LINK_INIT",
+    "JESD204_OP_LINK_SUPPORTED",
+    "JESD204_OP_LINK_PRE_SETUP",
+    "JESD204_OP_CLK_SYNC_STAGE1",
+    "JESD204_OP_CLK_SYNC_STAGE2",
+    "JESD204_OP_CLK_SYNC_STAGE3",
+    "JESD204_OP_LINK_SETUP",
+    "JESD204_OP_OPT_SETUP_STAGE1",
+    "JESD204_OP_OPT_SETUP_STAGE2",
+    "JESD204_OP_OPT_SETUP_STAGE3",
+    "JESD204_OP_OPT_SETUP_STAGE4",
+    "JESD204_OP_OPT_SETUP_STAGE5",
+    "JESD204_OP_CLOCKS_ENABLE",
+    "JESD204_OP_LINK_ENABLE",
+    "JESD204_OP_LINK_RUNNING",
+    "JESD204_OP_OPT_POST_RUNNING_STAGE"
+};
+#define ARRAY_SIZE(arr) (sizeof(arr)/sizeof(arr[0]))
+
+inline const char* get_jesd_state_name(const uint32_t jesd_state)
+{
+    if( jesd_state < ARRAY_SIZE(jesd_state_names) )
+    {   
+        return jesd_state_names[jesd_state];
+    }
+    return "JESD204_OP_UNKNOWN";
+}
+
 int SpiDaemonThread::execute_jesd(int jesd_state)
 {
-    HSB_LOG_INFO("JESD Transitioning to state {}", jesd_state);
+    HSB_LOG_INFO("JESD Transitioning to state {} - {}", jesd_state, get_jesd_state_name(jesd_state));
 
     switch (jesd_state) {
     case JESD204_OP_LINK_PRE_SETUP:
@@ -181,10 +210,27 @@ int SpiDaemonThread::execute_jesd(int jesd_state)
     return 1;
 }
 
-AD9986Config::AD9986Config(Hololink& hololink)
+//##########################################################
+AD9986Config::AD9986Config(Hololink& hololink, const std::string &uuid)
     : hololink_(hololink)
     , jesd_configured_(false)
+    , etile_(hololink)
+    , altera_jesd_(false)
 {
+    // Determine which FPGA/Board we are running on
+    if ( uuid == TERASIC_HOLOLINK_100G_UUID )
+    {
+        HSB_LOG_INFO("Altera JESD core.");
+        // We are using the Altera JESD Core
+        altera_jesd_ = true;
+        // Base address of the ETILE Phy on the Altera JESD Implementation
+        etile_.configure(0x80000000, 0x00080000, 8);
+    }
+    else
+    {
+        HSB_LOG_INFO("nVidia JESD core.");
+        etile_.configure(0x05100000, 0x00010000 >> 2, 8);
+    }
 }
 
 void AD9986Config::apply(void)
@@ -204,6 +250,38 @@ void AD9986Config::host_pause_mapping(uint32_t mask)
     host_pause_mapping_mask_ = mask;
 }
 
+// Register defintions for Reset Sequence Controller used by the Altera JESD Core
+#define ALTERA_JESD_RX_TX_AVS_RST   (0x0001<<0)
+#define ALTERA_JESD_TX_PHY          (0x0001<<1)
+#define ALTERA_JESD_TX_CORE         (0x0001<<2)
+
+#define ALTERA_JESD_RX_PHY          (0x0001<<3)
+#define ALTERA_JESD_RX_CORE         (0x0001<<4)
+#define ALTERA_JESD_IO_PLL          (0x0001<<5)
+
+// Mask of all the reset bits
+#define ALTERA_JESD_RST_MASK        (ALTERA_JESD_RX_TX_AVS_RST | ALTERA_JESD_TX_PHY | ALTERA_JESD_TX_CORE | ALTERA_JESD_RX_PHY | ALTERA_JESD_RX_CORE | ALTERA_JESD_IO_PLL)
+
+// Mask of all the reset bits except the IOPLL
+#define ALTERA_JESD_ALL_RST        (ALTERA_JESD_RX_TX_AVS_RST | ALTERA_JESD_TX_PHY | ALTERA_JESD_TX_CORE | ALTERA_JESD_RX_PHY | ALTERA_JESD_RX_CORE)
+
+// Register map for the Altera Reset Sequence Controller used by the Altera JESD Core
+#define ALTERA_JESD_RST_REG           (0x60000014)
+
+// Regsiter map for the Altera IOPLL Reconfig
+#define ALTERA_JESD_IOPLL_RECONFIG    (0x80000000 + (0x400000<<2))
+
+void AD9986Config::altera_jesd_reset(const uint32_t AssertRsts)
+{
+    // Create the reset value to write to the Altera JESD Reset Register
+    // Upper 16 bits are the reset override (active high)
+    // Lower 16 bits are the reset assert (active high)
+    uint32_t rst = (ALTERA_JESD_RST_MASK<<16) | (AssertRsts & ALTERA_JESD_RST_MASK);
+
+    hololink_.write_uint32(ALTERA_JESD_RST_REG, rst);
+    HSB_LOG_DEBUG("Altera Tx Reset: {:08x} - {:08x}", ALTERA_JESD_RST_REG, rst);
+}
+
 void AD9986Config::power_on()
 {
     HSB_LOG_INFO("JESD::power_on");
@@ -211,12 +289,23 @@ void AD9986Config::power_on()
     // First check the XCVR's refclk. Switch back if not on refclk 1 before starting config.
     // Only check the first XCVR b/c that should indicate which clock all XCVRs are using.
     // This is a generic function that is associated with the Stratix 10 FPGA E-Tile Transceiver.
-    auto refclk = hololink_.read_uint32(0x051003B0) & 0xF;
+    auto refclk = etile_.read_refclk(0);
+
     if (refclk != 1) {
         HSB_LOG_INFO("Switching XCVRs back to refclk 1");
         for (size_t i = 0; i < 8; ++i) {
-            task_refclk_sw(i, 1, 0);
+            etile_.task_refclk_sw(i, 1, 0);
         }
+    }
+
+    if ( altera_jesd_ )
+    { 
+        // Let's reset the Altera JESD Core
+        HSB_LOG_INFO("Resetting Altera JESD core");
+        // Assert all resets to the Altera JESD Core
+        altera_jesd_reset(ALTERA_JESD_ALL_RST);
+        // Bring the AVS interface out of reset
+        altera_jesd_reset(ALTERA_JESD_RX_PHY | ALTERA_JESD_TX_PHY | ALTERA_JESD_RX_CORE | ALTERA_JESD_TX_CORE);
     }
 
     // Cycle the MxFE power signals
@@ -234,244 +323,153 @@ void AD9986Config::setup_clocks()
 {
     HSB_LOG_INFO("JESD::setup_clocks");
 
+    if( altera_jesd_ )
+    {
+        // Assert all resets to the Altera JESD Core
+        altera_jesd_reset(ALTERA_JESD_ALL_RST);
+        // Release AVS reset
+        altera_jesd_reset(ALTERA_JESD_RX_PHY | ALTERA_JESD_TX_PHY | ALTERA_JESD_RX_CORE | ALTERA_JESD_TX_CORE);
+
+        // Release Phy resets
+        altera_jesd_reset(ALTERA_JESD_RX_CORE | ALTERA_JESD_TX_CORE);
+    }
+
     // Switch refeclks over to GBTCLK0
     //  - This switches the JESD XCVR reference clock input to the clock from the HMC7044
     //    This is a generic function that is associated with the Stratix 10 FPGA E-Tile Transceiver.
     for (int i = 0; i < 8; i++) {
-        if (!task_refclk_sw(i, 2, 0)) {
+        if (!etile_.task_refclk_sw(i, 2, 0)) {
             HSB_LOG_INFO("RefClk Switch FAILED for channel:{}", i);
             return;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
-    // Reset the JESD
-    //- This is to ensure the nvidia JESD IP is reset after clocks have been stabilized
-    hololink_.write_uint32(0x05300000, 0x1);
-    hololink_.write_uint32(0x05300000, 0x0);
+    if( altera_jesd_ )
+    {
+        // Force a IOPLL recalibration
+        hololink_.write_uint32(ALTERA_JESD_IOPLL_RECONFIG, 0x0); 
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+        // Bring the Rx and Tx out of reset
+        altera_jesd_reset(0);
+
+        // Give the PLL time to lock
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+    else
+    {
+        // Reset the JESD
+        //- This is to ensure the nvidia JESD IP is reset after clocks have been stabilized
+        hololink_.write_uint32(0x05300000, 0x1);
+        hololink_.write_uint32(0x05300000, 0x0);
+    }
 }
 
 void AD9986Config::configure()
 {
     HSB_LOG_INFO("JESD::configure");
 
-    // Packetizer Programming
-    hololink_.write_uint32(0x0100000C, 0x10000001);
-    hololink_.write_uint32(0x01000004, 0x00000000);
-    hololink_.write_uint32(0x01000008, 0xFFFFFFFF);
-    hololink_.write_uint32(0x01000004, 0x00000070);
-    hololink_.write_uint32(0x01000008, 0x00000001);
+    if ( !altera_jesd_ ) // nvidia jesd core requires the packetizer
+    {
+        // Packetizer Programming
+        hololink_.write_uint32(0x0100000C, 0x10000001);
+        hololink_.write_uint32(0x01000004, 0x00000000);
+        hololink_.write_uint32(0x01000008, 0xFFFFFFFF);
+        hololink_.write_uint32(0x01000004, 0x00000070);
+        hololink_.write_uint32(0x01000008, 0x00000001);
+    }
 
     // Map Pause to ethernet interface
     hololink_.write_uint32(0x0120000C, host_pause_mapping_mask_);
 
-    // Configure the JESD IP
-    //- This configures the nvidia JESD IP in the specific mode that the original MxFE demo was configured for.
-    //- I would imagine these functions would be made more generic to support different JESD modes in the future.
-    configure_nvda_jesd_tx();
-    configure_nvda_jesd_rx();
+    if( !altera_jesd_ )
+    {
+        // Configure the JESD IP
+        //- This configures the nvidia JESD IP in the specific mode that the original MxFE demo was configured for.
+        //- I would imagine these functions would be made more generic to support different JESD modes in the future.
+        configure_nvda_jesd_tx();
+        configure_nvda_jesd_rx();
+    }
+
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    // Enable the TX data (input to the JESD IP) and the RX data (output from the JESD IP)
-    hololink_.write_uint32(0x05300000, 0x10);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    if ( altera_jesd_ )
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
+    else
+    {
+        // Enable the TX data (input to the JESD IP) and the RX data (output from the JESD IP)
+        hololink_.write_uint32(0x05300000, 0x10);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    }
 }
 
 void AD9986Config::run()
 {
     HSB_LOG_INFO("JESD::run");
 
-    // Cycle the RX Link
-    //  - This cycles the RX link on the nvidia JESD IP. It's kinda like a reset but not completely.
-    //  - TODO: Determine if sleeps are needed here.
-    hololink_.write_uint32(0x05039000, 0x0);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    hololink_.write_uint32(0x05039000, 0x1);
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    // Write the rx lane status to clear errors
-    //  - Clears some RX lane status that we are interested in.
-    for (int i = 0x0; i < 0x800; i += 0x100) {
-        uint32_t address = 0x0503C008 + i;
-        hololink_.write_uint32(address, 0xff);
+    if ( altera_jesd_ )
+    {
+        // // Cycle the RX Link
+        // altera_jesd_reset(ALTERA_JESD_RX_CORE);
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        // altera_jesd_reset(0);
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
+    else
+    {
+        // Cycle the RX Link
+        //  - This cycles the RX link on the nvidia JESD IP. It's kinda like a reset but not completely.
+        //  - TODO: Determine if sleeps are needed here.
+        hololink_.write_uint32(0x05039000, 0x0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        hololink_.write_uint32(0x05039000, 0x1);
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    // Read the status back
-    //  - Reads back lane 64B66B status.
-    //  - Used to check SH/EMB/User lock status of JESD lanes.
-    //  - Read the gearbox status to check any overflow conditions.
-    //  - TODO: Intelligently assess the status based on what we read back...
-    HSB_LOG_DEBUG("LANE 64B66B Status:");
-    for (int i = 0x0; i < 0x800; i += 0x100) {
-        uint32_t address = 0x0503C008 + i;
-        HSB_LOG_DEBUG("address:{:#x}, value:{:#x}", address, hololink_.read_uint32(address));
+        // Write the rx lane status to clear errors
+        //  - Clears some RX lane status that we are interested in.
+        for (int i = 0x0; i < 0x800; i += 0x100) {
+            uint32_t address = 0x0503C008 + i;
+            hololink_.write_uint32(address, 0xff);
+        }
+
+        // Read the status back
+        //  - Reads back lane 64B66B status.
+        //  - Used to check SH/EMB/User lock status of JESD lanes.
+        //  - Read the gearbox status to check any overflow conditions.
+        //  - TODO: Intelligently assess the status based on what we read back...
+        HSB_LOG_DEBUG("LANE 64B66B Status:");
+        for (int i = 0x0; i < 0x800; i += 0x100) {
+            uint32_t address = 0x0503C008 + i;
+            HSB_LOG_DEBUG("address:{:#x}, value:{:#x}", address, hololink_.read_uint32(address));
+        }
+        HSB_LOG_DEBUG("UPHY OVERFLOW Status:");
+        HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x0502102C));
+        HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x05021448));
+        HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x05021864));
+        HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x05021C80));
+        HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x0502209C));
+        HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x050224B8));
+        HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x050228D4));
+        HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x05022CF0));
+
+        hololink_.write_uint32(0x05300000, 0x30); // Enable RX
     }
-    HSB_LOG_DEBUG("UPHY OVERFLOW Status:");
-    HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x0502102C));
-    HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x05021448));
-    HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x05021864));
-    HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x05021C80));
-    HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x0502209C));
-    HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x050224B8));
-    HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x050228D4));
-    HSB_LOG_DEBUG("value:{:#x}", hololink_.read_uint32(0x05022CF0));
-
-    hololink_.write_uint32(0x05300000, 0x30); // Enable RX
     hololink_.write_uint32(0x01200000, 0x3); // Enable TX
 
     jesd_configured_.store(true, std::memory_order_release);
 }
 
-bool AD9986Config::task_refclk_sw(uint32_t channel, uint32_t refclk, uint32_t hwseq)
-{
-    HSB_LOG_DEBUG("SWITCHING TO REFCLK: {},ON CHANNEL: {}", refclk, channel);
-
-    bool loop_status = false;
-    uint32_t retry_cnt = 0;
-    uint32_t ch_offset = channel * 0x00010000 + 0x05100000;
-    uint32_t data = refclk;
-
-    // Put a retry around this for when the refclk sw fails.
-    // Typically a PMA analog reset will fix it.
-    while (!loop_status && retry_cnt < 2) {
-        if (!task_set_pma_attribute(channel, 0x0030, 0x0003)) { // Switch to refclkB
-            HSB_LOG_INFO("Set PMA Attribute Switch to RefClk B FAILED in RefClk Switch");
-            HSB_LOG_INFO("Trying PMA Analog Reset");
-            task_pma_analog_reset(channel);
-            retry_cnt++;
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            continue;
-        }
-
-        uint32_t addr = ch_offset + 0xec * 4;
-        hololink_.write_uint32(addr, data);
-
-        if (!task_set_pma_attribute(channel, 0x0030, 0x0000)) { // Switch to refclkA
-            HSB_LOG_INFO("Set PMA Attribute Switch to RefClk A FAILED in RefClk Switch");
-            HSB_LOG_INFO("Trying PMA Analog Reset");
-            task_pma_analog_reset(channel);
-            retry_cnt++;
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-            continue;
-        }
-
-        task_pma_analog_reset(channel);
-        loop_status = true;
-    }
-
-    return loop_status;
-}
-
-bool AD9986Config::task_set_pma_attribute(uint32_t channel, uint32_t code, uint32_t data)
-{
-    bool failed = false;
-    uint32_t tries = 0;
-    uint32_t rd_data;
-
-    // Added retry method based on PMA_functions_ETILE.c from:
-    //  https://community.intel.com/t5/FPGA-Wiki/High-Speed-Transceiver-Demo-Designs-Intel-Stratix-10-TX-Series/ta-p/735133
-    //  See PMA_functions_ETILE.zip
-    while (tries < 5) {
-        HSB_LOG_DEBUG("Setting PMA Attribute:{:#} to:{:#} for channel{}", code, data, channel);
-
-        failed = false;
-        uint32_t ch_offset = channel * 0x00010000 + 0x05100000;
-
-        uint32_t low_data = data & 0xFF; // Get the lower byte of data to program and left-pad to 8 characters
-        uint32_t high_data = data >> 8 & 0xFF; // Get the upper byte of data to program and left-pad to 8 characters
-        uint32_t low_code = code & 0xFF; // Get the lower byte of the attribute code to program and left-pad to 8 characters
-        uint32_t high_code = code >> 8 & 0xFF; // Get the upper byte of the attribute code to program and left-pad to 8 characters
-
-        uint32_t addr = ch_offset + 0x8A * 4; // Calculate the address for offset 0x8A and left-pad to 8 characters
-        hololink_.write_uint32(addr, 0x00000080); // Write offset 0x8A to 0x80 to clear the bit indicating successful PMA attribute transmission
-
-        addr = ch_offset + 0x84 * 4; // Calculate the address for offset 0x84 and left-pad to 8 characters
-        hololink_.write_uint32(addr, low_data); // Write the lower byte of data to 0x84
-
-        addr += 4; // Calculate the address for offset 0x85 and left-pad to 8 characters
-        hololink_.write_uint32(addr, high_data); // Write the upper byte of data to 0x85
-
-        addr += 4; // Calculate the address for offset 0x86 and left-pad to 8 characters
-        hololink_.write_uint32(addr, low_code); // Write the lower byte of the attribute code to 0x8600
-
-        addr += 4; // Calculate the address for offset 0x87 and left-pad to 8 characters
-        hololink_.write_uint32(addr, high_code); // Write the upper byte of the attribute code to 0x87
-
-        addr = ch_offset + 0x90 * 4; // Calculate the address for offset 0x90 and left-pad to 8 characters
-        hololink_.write_uint32(addr, 0x00000001); // Write offset 0x90 to issue the PMA attribute
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        addr = ch_offset + 0x8A * 4; // Calculate the address for offset 0x8A
-        rd_data = hololink_.read_uint32(addr) & 0x80; // Read the value of offset 0x8A and mask bit 7
-        if (rd_data == 128) { // Check bit 7 is set
-            HSB_LOG_DEBUG("Bit 7 of 0x8A is 1. Continuing..."); // If bit 7 is set, then continue
-        } else {
-            HSB_LOG_DEBUG("Bit 7 of 0x8A is not 1."); // If bit 7 is not set, then error out
-            failed = true;
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        addr = ch_offset + 0x8B * 4;
-        rd_data = hololink_.read_uint32(addr) & 0x1; // Read offset 0x8B and mask bit 0
-        if (rd_data) { // If bit 0 is = 1, error out
-            HSB_LOG_DEBUG("Bit 0 of 0x8B is not 0.");
-            failed = true;
-        } else {
-            HSB_LOG_DEBUG("Bit 0 of 0x8B is 0. Continuing..."); // If bit 0 is = 0, continue
-        }
-
-        if (failed) {
-            HSB_LOG_DEBUG("Retrying PMA Attribute due to error.");
-            tries++;
-        } else {
-            HSB_LOG_DEBUG("Retry Count for PMA code:{:#} with data:{:#} :{}", code, data, tries);
-            break;
-        }
-    }
-
-    if (failed) {
-        HSB_LOG_ERROR("\tSet PMA attribute failed after{} attempts.", tries);
-        return false;
-    } else {
-        return true;
-    }
-}
-
-void AD9986Config::task_pma_analog_reset(uint32_t channel)
-{
-    uint32_t rd_data = 0;
-    uint32_t addr = 0;
-
-    HSB_LOG_INFO("Issuing PMA Analog Reset for Channel:{}", channel);
-    uint32_t ch_offset = channel * 0x00010000 + 0x05100000;
-
-    for (uint32_t i = 0; i < 3; i++) {
-        addr = ch_offset + (0x200 + i) * 4;
-        hololink_.write_uint32(addr, 0x00000000);
-    }
-
-    addr = ch_offset + (0x200 + 0x3) * 4;
-    hololink_.write_uint32(addr, 0x00000081);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-    addr = ch_offset + (0x200 + 0x7) * 4;
-    rd_data = hololink_.read_uint32(addr) & 0xFF;
-
-    // Check 0x207 is 0x80; if so, return
-    if (rd_data != 0x80)
-        return;
-
-    addr = ch_offset + 0x95 * 4;
-    rd_data = hololink_.read_uint32(addr) | 0x20;
-    hololink_.write_uint32(addr, rd_data);
-
-    addr = ch_offset + 0x91 * 4;
-    hololink_.write_uint32(addr, 0x00000001);
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-}
-
 void AD9986Config::configure_nvda_jesd_tx(void)
 {
+    if( altera_jesd_ )
+    {
+        return;
+    }
+
     uint32_t tx_base = 0x05040000;
 
     // Configure TX link parameters
@@ -492,6 +490,10 @@ void AD9986Config::configure_nvda_jesd_tx(void)
 
 void AD9986Config::configure_nvda_jesd_rx(void)
 {
+    if( altera_jesd_ )
+    {
+        return;
+    }
     uint32_t rx_base = 0x05000000;
 
     // Configure RBD per-lane

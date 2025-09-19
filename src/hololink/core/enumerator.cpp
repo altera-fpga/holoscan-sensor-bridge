@@ -782,6 +782,12 @@ void Enumerator::configure_default_enumeration_strategies()
     auto leopard_eagle_enumeration_strategy = std::make_shared<LeopardEagleEnumerationStrategy>();
     uuid_strategies_[LEOPARD_EAGLE_UUID] = leopard_eagle_enumeration_strategy;
 
+    Metadata terasic_hololink_100g_metadata;
+    terasic_hololink_100g_metadata["board_description"] = "Terasic hololink 100G";
+    auto   terasic_hololink_100g_enumeration_strategy = std::make_shared<BasicEnumerationStrategy>( terasic_hololink_100g_metadata);
+    terasic_hololink_100g_enumeration_strategy->vsync_enable(false);
+    uuid_strategies_[ TERASIC_HOLOLINK_100G_UUID] =   terasic_hololink_100g_enumeration_strategy;
+
     done = true;
 }
 

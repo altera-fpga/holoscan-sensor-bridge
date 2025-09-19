@@ -41,6 +41,7 @@ const std::string HOLOLINK_NANO_UUID = "d0f015e0-93b6-4473-b7d1-7dbd01cbeab5";
 const std::string HOLOLINK_100G_UUID = "7a377bf7-76cb-4756-a4c5-7dddaed8354b";
 const std::string MICROCHIP_POLARFIRE_UUID = "ed6a9292-debf-40ac-b603-a24e025309c1";
 const std::string LEOPARD_EAGLE_UUID = "f1627640-b4dc-48af-a360-c55b09b3d230";
+const std::string TERASIC_HOLOLINK_100G_UUID = "01990f9c-5794-7169-a5af-d986baf87777";
 
 /**
  * Strategy that adjusts enumeration data based on FPGA UUID.

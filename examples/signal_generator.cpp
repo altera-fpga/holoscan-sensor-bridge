@@ -50,10 +50,11 @@ uint32_t get_infiniband_interface_index(const std::string& interface_name)
 
 class HololinkDevice {
 public:
-    HololinkDevice(hololink::Hololink& hololink, size_t frame_size, uint32_t host_pause_mapping)
+    HololinkDevice(hololink::Hololink& hololink, size_t frame_size, uint32_t host_pause_mapping, const std::string& uuid)
         : hololink_(hololink)
         , frame_size_(frame_size)
         , host_pause_mapping_(host_pause_mapping)
+        , uuid_(uuid)
     {
         HSB_LOG_INFO("HololinkDevice frame_size={}", frame_size_);
     }
@@ -63,7 +64,7 @@ public:
         HSB_LOG_INFO("HololinkDevice start");
 
         // Configure the AD9986 MxFE.
-        mxfe_config_ = std::make_shared<hololink::AD9986Config>(hololink_);
+        mxfe_config_ = std::make_shared<hololink::AD9986Config>(hololink_, uuid_);
         mxfe_config_->host_pause_mapping(host_pause_mapping_);
         mxfe_config_->apply();
     }
@@ -77,6 +78,7 @@ private:
     hololink::Hololink& hololink_;
     size_t frame_size_;
     uint32_t host_pause_mapping_;
+    std::string uuid_;
 
     std::shared_ptr<hololink::AD9986Config> mxfe_config_;
 };
@@ -116,11 +118,11 @@ public:
             // Get a handle to the data source
             auto channel_metadata = hololink::Enumerator::find_channel(hololink_ip_);
             hololink::DataChannel::use_sensor(channel_metadata, 0); // Support Tx/Rx on the same interface
+            channel_metadata["sequence_number_checking"] = 0;
             HSB_LOG_INFO("channel_metadata={}", channel_metadata);
             hololink_channel_.reset(new hololink::DataChannel(channel_metadata));
             hololink_ = hololink_channel_->hololink();
-            hololink_device_.reset(new HololinkDevice(*hololink_, frame_size_, host_pause_mapping_));
-
+            hololink_device_.reset(new HololinkDevice(*hololink_, frame_size_, host_pause_mapping_, channel_metadata.get<std::string>("fpga_uuid").value()));
             hololink_->start();
             hololink_->reset();
             initialized_ = true;

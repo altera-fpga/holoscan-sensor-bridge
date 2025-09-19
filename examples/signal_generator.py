@@ -36,17 +36,18 @@ def get_infiniband_interface_index(interface_name):
 
 
 class HololinkDevice:
-    def __init__(self, hololink, frame_size, host_pause_mapping):
+    def __init__(self, hololink, frame_size, host_pause_mapping, uuid):
         logging.info("HololinkDevice __init__")
         self._hololink = hololink
         self._frame_size = frame_size
         self._host_pause_mapping = host_pause_mapping
+        self._uuid = uuid
         logging.info(f"HololinkDevice {self._frame_size=:#X}")
 
     def start(self):
         logging.info("HololinkDevice start")
 
-        self._mxfe_config = hololink_module.AD9986Config(self._hololink)
+        self._mxfe_config = hololink_module.AD9986Config(self._hololink, self._uuid)
         self._mxfe_config.host_pause_mapping(self._host_pause_mapping)
         self._mxfe_config.apply()
 
@@ -101,7 +102,7 @@ class RoceReceiverInitializer:
             self._hololink_channel = hololink_module.DataChannel(channel_metadata)
             self._hololink = self._hololink_channel.hololink()
             self._hololink_device = HololinkDevice(
-                self._hololink, self._frame_size, self._host_pause_mapping
+                self._hololink, self._frame_size, self._host_pause_mapping, channel_metadata["fpga_uuid"]
             )
 
             self._hololink.start()

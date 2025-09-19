@@ -22,6 +22,7 @@
 #include <thread>
 
 #include "hololink.hpp"
+#include "altera_phy.hpp"
 
 namespace hololink {
 
@@ -65,6 +66,9 @@ public:
     void stop();
 
 protected:
+    const int SPI_DAEMON_SERVER_PORT = 8400;
+    const size_t MAX_SPI_DEVICES = 2;
+
     // Message types and definition, must match SPI Daemon's definition.
     const int HSB_SPI_MSG_TYPE_SPI = 0;
     const int HSB_SPI_MSG_TYPE_JESD = 1;
@@ -120,7 +124,7 @@ protected:
  */
 class AD9986Config : public JESDConfig {
 public:
-    explicit AD9986Config(Hololink& hololink);
+    explicit AD9986Config(Hololink& hololink, const std::string &uuid);
 
     // Set the host pause mapping for the AD9986.
     // 0x01: Interface 0
@@ -141,13 +145,13 @@ private:
     std::unique_ptr<SpiDaemonThread> spi_daemon_thread_;
     std::atomic<bool> jesd_configured_;
 
-    bool task_refclk_sw(uint32_t channel, uint32_t refclk, uint32_t hwseq);
-    bool task_set_pma_attribute(uint32_t channel, uint32_t code, uint32_t data);
-    void task_pma_analog_reset(uint32_t channel);
     void configure_nvda_jesd_tx(void);
     void configure_nvda_jesd_rx(void);
 
-    uint32_t host_pause_mapping_mask_ = 0;
-};
+    void altera_jesd_reset(const uint32_t AssertRsts);
 
+    uint32_t host_pause_mapping_mask_ = 0;
+    AlteraETile etile_;
+    bool altera_jesd_;
+};
 } // namespace hololink
