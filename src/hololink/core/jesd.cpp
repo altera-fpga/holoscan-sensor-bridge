@@ -349,14 +349,6 @@ void AD9986Config::setup_clocks()
     {
         // Force a IOPLL recalibration
         hololink_.write_uint32(ALTERA_JESD_IOPLL_RECONFIG, 0x0); 
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-        // Bring the Rx and Tx out of reset
-        altera_jesd_reset(0);
-
-        // Give the PLL time to lock
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
     else
     {
@@ -391,6 +383,25 @@ void AD9986Config::configure()
         //- I would imagine these functions would be made more generic to support different JESD modes in the future.
         configure_nvda_jesd_tx();
         configure_nvda_jesd_rx();
+    }
+    else
+    {
+        // Clocks are stable at this point
+        // Reset the JSED core to cleanly bring it up
+        HSB_LOG_INFO("JESD::Reset Altera JESD");
+        altera_jesd_reset(ALTERA_JESD_ALL_RST);
+    
+        // Release AVS reset
+        HSB_LOG_DEBUG("JESD::release avs");
+        altera_jesd_reset(ALTERA_JESD_RX_PHY | ALTERA_JESD_TX_PHY | ALTERA_JESD_RX_CORE | ALTERA_JESD_TX_CORE);
+        
+        // Release Phy resets
+        HSB_LOG_DEBUG("JESD::release PHYs");
+        altera_jesd_reset(ALTERA_JESD_RX_CORE | ALTERA_JESD_TX_CORE);
+
+        // Bring the Rx and Tx out of reset
+        HSB_LOG_DEBUG("JESD::release protocol cores");
+        altera_jesd_reset(0);
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
