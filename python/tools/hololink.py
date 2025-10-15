@@ -578,6 +578,7 @@ class SensorBridge100Strategy(SensorBridgeStrategy):
     def check_fpga_uuid(self, fpga_uuid):
         supported_fpga_uuids = {
             "7a377bf7-76cb-4756-a4c5-7dddaed8354b",  # Stratix 10 HSB
+            "01990f9c-5794-7169-a5af-d986baf87777",  # Terasic Stratix 10 HSB
         }
         return fpga_uuid in supported_fpga_uuids
 
