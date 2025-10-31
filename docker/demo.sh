@@ -64,6 +64,7 @@ docker run \
     -v $PWD:$PWD \
     -v $ROOT:$ROOT \
     -v $HOME:$HOME \
+    -v $PWD/.vscode-server:$HOME/.vscode-server \
     -v /sys/bus/pci/devices:/sys/bus/pci/devices \
     -v /sys/kernel/mm/hugepages:/sys/kernel/mm/hugepages \
     -v /dev:/dev \

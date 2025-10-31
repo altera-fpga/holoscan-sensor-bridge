@@ -26,6 +26,7 @@ _MODULES = [
     "imx477",
     "imx715",
     "vb1940",
+    "agx5_imx678",
 ]
 
 _OBJECTS = {
