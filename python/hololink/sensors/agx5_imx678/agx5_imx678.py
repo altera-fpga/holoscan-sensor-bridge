@@ -23,6 +23,7 @@ import hololink as hololink_module
 from .agx5_imx678_mode import (
     AGX5_IMX678_TABLE_END,
     AGX5_IMX678_TABLE_WAIT_MS,
+    AGX5_IMX678_WAIT_MS,
     agx_imx678_start,
     agx_imx678_stop,
 )
@@ -75,6 +76,20 @@ class FramosImx678:
         self._width = self._frame_format.width
         self._height = self._frame_format.height
         self._pixel_format = self._frame_format.pixel_format
+
+    def set_analog_gain_reg(self, value=0x20):
+        if value < 0x00:
+            logging.warn(f"AG value {value} is lower than the minimum.")
+            value = 0x00
+
+        if value > 0xf0:
+            logging.warn(f"AG value {value} is more than maximum.")
+            value = 0xf0
+
+        self.set_register(0x3070, (value & 0xFF) )
+        self.set_register(0x3071, (value & 0x300) >> 8)
+
+        time.sleep(AGX5_IMX678_WAIT_MS / 1000)
 
     def configure_converter(self, converter):
         print("configure_converter")

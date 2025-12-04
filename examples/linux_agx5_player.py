@@ -191,6 +191,13 @@ def main():
         choices=(0, 1),
         help="which camera to stream: 0 to stream camera connected to j14 or 1 to stream camera connected to j17 (default is 0)",
     )
+    parser.add_argument(
+        "--gain",
+        type=int,
+        default=32,
+        help="Set Analog Gain, RANGE(0 to 240). Default is 32",
+    )
+
     args = parser.parse_args()
     hololink_module.logging_level(args.log_level)
     logging.info("Initializing.")
@@ -249,6 +256,9 @@ def main():
         hololink_module.sensors.agx5_imx678.agx5_imx678_mode.agx5_imx678_3840_2160_60Hz_10BPP
     )
 
+    # Set a default analog gain
+    camera.set_analog_gain_reg(args.gain)
+    
     application.run()
     hololink.stop()
 
