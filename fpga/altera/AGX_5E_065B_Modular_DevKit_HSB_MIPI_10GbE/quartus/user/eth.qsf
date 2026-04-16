@@ -1,0 +1,38 @@
+###################################################################################
+# Copyright (C) 2025 Altera Corporation
+#
+# This software and the related documents are Altera copyrighted materials, and
+# your use of them is governed by the express license under which they were
+# provided to you ("License"). Unless the License provides otherwise, you may
+# not use, modify, copy, publish, distribute, disclose or transmit this software
+# or the related documents without Altera's prior written permission.
+#
+# This software and the related documents are provided as is, with no express
+# or implied warranties, other than those that are expressly stated in the License.
+###################################################################################
+
+
+# Bank 6B (3.3V)
+set_location_assignment PIN_BE29 -to sfp_tx_disable
+
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to sfp_tx_disable
+
+set_instance_assignment -name TERMINATION "OFF" -to sfp_tx_disable
+
+
+# Transceivers
+  set_location_assignment PIN_AY120 -to refclk_eth
+
+set_location_assignment PIN_AK135 -to serial_i_rx_serial_data
+set_location_assignment PIN_AK133 -to serial_i_rx_serial_data_n
+set_location_assignment PIN_AL129 -to serial_o_tx_serial_data
+set_location_assignment PIN_AL126 -to serial_o_tx_serial_data_n
+
+set_instance_assignment -name IO_STANDARD "CURRENT MODE LOGIC (CML)"    -to refclk_eth                -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE
+
+set_instance_assignment -name IO_STANDARD "HIGH SPEED DIFFERENTIAL I/O" -to serial_i_rx_serial_data   -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE
+set_instance_assignment -name IO_STANDARD "HIGH SPEED DIFFERENTIAL I/O" -to serial_i_rx_serial_data_n -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE
+set_instance_assignment -name IO_STANDARD "HIGH SPEED DIFFERENTIAL I/O" -to serial_o_tx_serial_data   -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE
+set_instance_assignment -name IO_STANDARD "HIGH SPEED DIFFERENTIAL I/O" -to serial_o_tx_serial_data_n -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE
+
+

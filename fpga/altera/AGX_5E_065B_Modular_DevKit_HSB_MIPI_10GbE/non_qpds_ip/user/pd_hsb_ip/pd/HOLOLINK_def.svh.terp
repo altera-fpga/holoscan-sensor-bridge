@@ -1,0 +1,218 @@
+`ifndef HOLOLINK_def
+`define HOLOLINK_def
+
+package HOLOLINK_pkg;
+
+//-----------------------------------------------------
+// Define FPGA Vendor for Macro Instantiation
+//-----------------------------------------------------
+
+// XILINX / ALTERA / LATTICE / MICROCHIP
+`define ALTERA
+
+//-----------------------------------------------------
+// Holoscan IP Host Clock Frequency
+//
+// Used for internal timer calculation
+//-----------------------------------------------------
+
+`define HIF_CLK_FREQ  $hif_clk_freq
+`define PTP_CLK_FREQ  $ptp_clk_freq
+
+@@ if {$sync_clk_hif_ptp} {
+`define SYNC_CLK_HIF_PTP 1
+@@ }
+
+//-----------------------------------------------------
+// Holoscan IP APB Clock Frequency
+//
+// Used for I2C clock divider setting
+//-----------------------------------------------------
+
+`define APB_CLK_FREQ  $apb_clk_freq
+
+@@ if {$sync_clk_hif_apb} {
+`define SYNC_CLK_HIF_APB 1
+@@ }
+
+//-----------------------------------------------------
+// Board Info Enumeration
+//
+// Use ENUM_EEPROM if board info is stored in an external
+// EEPROM. Otherwise, soft values can be used.
+//-----------------------------------------------------
+
+@@ if {$enum_eeprom} {
+`define ENUM_EEPROM 1
+@@ }
+@@ set board_id_hex [format %02x $board_id]
+@@ set uuid_hex     [format %032llx $uuid]
+`define BOARD_ID  8'h${board_id_hex}
+`define UUID      128'h${uuid_hex}
+
+`ifdef ENUM_EEPROM
+  `define EEPROM_REG_ADDR_BITS $eeprom_reg_addr_bits
+@@ if {!$expose_id} {
+`else
+  @@ for {set inst 0} {$inst < $host_if_inst} {incr inst} {
+    @@ set mac_addr_hex [format %012llx [lindex $mac_addr $inst]]
+  `define MAC_ADDR_${inst} 48'h$mac_addr_hex
+  @@ }
+
+  @@ set board_sn_hex [format %013llx $board_sn]
+  `define BOARD_SN  56'h$board_sn_hex
+@@ }
+`endif
+
+@@ if {$ext_ptp} {
+`define EXT_PTP 1
+@@ }
+//-----------------------------------------------------
+// Sensor IF
+//-----------------------------------------------------
+
+`ifndef DATAPATH_WIDTH
+  `define DATAPATH_WIDTH  $datapath_width    // Sensor interface data width
+`endif
+
+`define DATAKEEP_WIDTH    $datakeep_width    // Sensor interface data keep width
+`define DATAUSER_WIDTH    $datauser_width    // Sensor interface data user width
+
+@@ if {$sensor_rx_if_inst > 0} {
+`ifndef SENSOR_RX_IF_INST
+  `define SENSOR_RX_IF_INST  $sensor_rx_if_inst          // Number of Sensor RX interfaces
+`endif
+
+@@ }
+@@ if {$sensor_tx_if_inst > 0} {
+`ifndef SENSOR_TX_IF_INST
+  `define SENSOR_TX_IF_INST  $sensor_tx_if_inst          // Number of Sensor TX interfaces
+`endif
+
+@@ }
+//-----------------------------------------------------
+// Host IF
+//-----------------------------------------------------
+
+`ifndef HOST_WIDTH
+  `define HOST_WIDTH      $host_width        // Host interface data width
+`endif
+
+`define HOSTKEEP_WIDTH    $hostkeep_width    // Host interface data keep width
+`define HOSTUSER_WIDTH    $hostuser_width    // Host interface data user width
+
+`ifndef HOST_IF_INST
+  `define HOST_IF_INST    $host_if_inst          // Host interface instantiation number
+`endif
+
+`define HOST_MTU       $host_mtu
+
+//------------------------------------------------------------------------------
+// Peripheral Control
+//------------------------------------------------------------------------------
+
+// At time of 2510 SW needs one SPI controller otherwise it crashes
+// When set to 0 in PD SPI_INST set to 1 and tied off in pd_hsb_wrapper.sv
+@@ if {$spi_inst == 0} {
+  @@ set header_spi_inst 1
+@@ } else {
+  @@ set header_spi_inst $spi_inst
+@@ }
+@@ if {$header_spi_inst > 0} {
+`ifndef SPI_INST
+  `define SPI_INST  $header_spi_inst   // SPI interface instantiation number
+`endif
+@@ }
+
+@@ if {$i2c_inst > 0} {
+`ifndef  I2C_INST
+  `define I2C_INST  $i2c_inst   // I2C interface instantiation number
+`endif
+@@ }
+
+@@ if {$uart_inst > 0} {
+`ifndef  UART_INST
+  `define UART_INST  1   // UART interface instantiation on/off
+`endif
+@@ }
+
+@@ if {$gpio_inst == 0} {
+  @@ set gpio_inst 1
+  @@ set gpio_reset_value 0b0
+// Using default value for GPIO_INST
+@@ }
+`define GPIO_INST $gpio_inst  // INOUT GPIO instantiation number
+
+@@ set grv_prefix "$gpio_inst[string map {0x 'h 0b 'b} [string range $gpio_reset_value 0 1]]"
+@@ set grv_value  [string range $gpio_reset_value 2 end]
+localparam [`GPIO_INST-1:0] GPIO_RESET_VALUE = $grv_prefix$grv_value;
+
+//------------------------------------------------------------------------------
+// Register IF
+//
+// Creates <REG_INST> number of APB register interfaces for user logic access
+//------------------------------------------------------------------------------
+
+`define REG_INST $reg_inst
+
+//------------------------------------------------------------------------------
+// Packetizer
+//
+// Sets the Packetizer Parameters for Each Sensor IF
+//------------------------------------------------------------------------------
+
+`ifdef SENSOR_RX_IF_INST
+@@ set sif_rx_packetizer_en_fmt     [string map {" " ,} $sif_rx_packetizer_en]
+@@ set sif_rx_width_fmt             [string map {" " ,} $sif_rx_width]
+@@ set sif_rx_sort_resolution_fmt   [string map {" " ,} $sif_rx_sort_resolution]
+@@ set sif_rx_vp_count_fmt          [string map {" " ,} $sif_rx_vp_count]
+@@ set sif_rx_vp_size_fmt           [string map {" " ,} $sif_rx_vp_size]
+@@ set sif_rx_num_cycles_fmt        [string map {" " ,} $sif_rx_num_cycles]
+  localparam integer  SIF_RX_PACKETIZER_EN   [`SENSOR_RX_IF_INST-1:0] = '{$sif_rx_packetizer_en_fmt};
+  localparam integer  SIF_RX_WIDTH           [`SENSOR_RX_IF_INST-1:0] = '{$sif_rx_width_fmt};
+  localparam integer  SIF_RX_SORT_RESOLUTION [`SENSOR_RX_IF_INST-1:0] = '{$sif_rx_sort_resolution_fmt};
+  localparam integer  SIF_RX_VP_COUNT        [`SENSOR_RX_IF_INST-1:0] = '{$sif_rx_vp_count_fmt};
+  localparam integer  SIF_RX_VP_SIZE         [`SENSOR_RX_IF_INST-1:0] = '{$sif_rx_vp_size_fmt};
+  localparam integer  SIF_RX_NUM_CYCLES      [`SENSOR_RX_IF_INST-1:0] = '{$sif_rx_num_cycles_fmt};
+
+@@ if {$sif_rx_data_gen} {
+  // Include the internal data generators
+  `define SENSOR_RX_DATA_GEN 1
+@@ }
+`endif
+
+`ifdef SENSOR_TX_IF_INST
+@@ set sif_tx_width_fmt    [string map {" " ,} $sif_tx_width]
+@@ set sif_tx_buf_size_fmt [string map {" " ,} $sif_tx_buf_size]
+  localparam integer  SIF_TX_WIDTH           [`SENSOR_TX_IF_INST-1:0] = '{$sif_tx_width_fmt};
+  localparam integer  SIF_TX_BUF_SIZE        [`SENSOR_TX_IF_INST-1:0] = '{$sif_tx_buf_size_fmt};
+`endif
+
+//------------------------------------------------------------------------------
+// System Initialization
+//
+// Initialization for the Host Interface registers so communication can be
+// established between the FPGA and the Host
+//------------------------------------------------------------------------------
+
+@@ set n_init_reg [llength $init_reg]
+@@ if {$n_init_reg == 0} {
+  @@ lappend init_reg {0 0}
+  @@ set n_init_reg 1
+// Using default value for N_INIT_REG
+@@ }
+`define N_INIT_REG $n_init_reg
+
+localparam logic [63:0] init_reg [`N_INIT_REG] = '{
+  // 32b Addr  | 32b Data
+
+@@ set i 0
+@@ foreach reg $init_reg {
+  @@ set str [format "{32'h%08X, 32'h%08X}%s" {*}$reg [expr {$i<$n_init_reg-1?",":""}]]
+  $str
+  @@ incr i
+@@ }
+
+};
+endpackage: HOLOLINK_pkg
+`endif

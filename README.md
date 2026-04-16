@@ -1,4 +1,4 @@
-# Holoscan Sensor Bridge
+# 🚀 Altera FPGA-based NVIDIA Holoscan Sensor Bridge
 
 ## Introduction
 
@@ -7,10 +7,7 @@ processing using GPUs. Peripheral device data is acquired by the FPGA and sent v
 to the host system where ConnectX devices can write that UDP data directly into GPU
 memory. This software package supports integrating that equipment into Holoscan
 pipelines and provides several examples showing video processing and inference using an
-IMX274 camera with
-[Lattice Holoscan Sensor Bridge device](https://www.latticesemi.com/products/developmentboardsandkits/certuspro-nx-sensor-to-ethernet-bridge-board)
-or an IMX477 camera with
-[Microchip Holoscan Sensor Bridge](https://www.microchip.com/en-us/products/fpgas-and-plds/boards-and-kits/ethernet-sensor-bridge).
+IMX678 camera with [Altera Agilex™ FPGA Development Kits](./fpga/altera/README.md).
 
 ## Setup
 
