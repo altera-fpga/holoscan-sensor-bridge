@@ -503,7 +503,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="id" type="int">
           <ipxact:name>id</ipxact:name>
           <ipxact:displayName>32-bit System ID</ipxact:displayName>
-          <ipxact:value>-1515048688</ipxact:value>
+          <ipxact:value>1779962306</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="HASH_INT" type="string">
           <ipxact:name>HASH_INT</ipxact:name>
@@ -516,7 +516,7 @@ Altera and sold by Altera or its authorized distributors.-->
       <ipxact:parameters>
         <ipxact:parameter parameterId="embeddedsw.CMacro.ID" type="string">
           <ipxact:name>embeddedsw.CMacro.ID</ipxact:name>
-          <ipxact:value>-1515048688</ipxact:value>
+          <ipxact:value>1779962306</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="embeddedsw.dts.compatible" type="string">
           <ipxact:name>embeddedsw.dts.compatible</ipxact:name>
@@ -532,7 +532,7 @@ Altera and sold by Altera or its authorized distributors.-->
         </ipxact:parameter>
         <ipxact:parameter parameterId="embeddedsw.dts.params.id" type="string">
           <ipxact:name>embeddedsw.dts.params.id</ipxact:name>
-          <ipxact:value>-1515048688</ipxact:value>
+          <ipxact:value>1779962306</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="embeddedsw.dts.vendor" type="string">
           <ipxact:name>embeddedsw.dts.vendor</ipxact:name>
@@ -550,7 +550,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="device" type="string">
           <ipxact:name>device</ipxact:name>
           <ipxact:displayName>Device</ipxact:displayName>
-          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
+          <ipxact:value>A5ED065BB32AE4S</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="deviceFamily" type="string">
           <ipxact:name>deviceFamily</ipxact:name>
@@ -560,7 +560,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="deviceSpeedGrade" type="string">
           <ipxact:name>deviceSpeedGrade</ipxact:name>
           <ipxact:displayName>Device Speed Grade</ipxact:displayName>
-          <ipxact:value>6</ipxact:value>
+          <ipxact:value>4</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="generationId" type="int">
           <ipxact:name>generationId</ipxact:name>
@@ -958,11 +958,11 @@ Altera and sold by Altera or its authorized distributors.-->
                 &lt;cmsisVars&gt;
                     &lt;entry&gt;
                         &lt;key&gt;sysid_timestamp_value&lt;/key&gt;
-                        &lt;value&gt;0x69e0dd5a&lt;/value&gt;
+                        &lt;value&gt;0x6a181253&lt;/value&gt;
                     &lt;/entry&gt;
                     &lt;entry&gt;
                         &lt;key&gt;sysid_id_value&lt;/key&gt;
-                        &lt;value&gt;0xa5b23110&lt;/value&gt;
+                        &lt;value&gt;0x6a1811c2&lt;/value&gt;
                     &lt;/entry&gt;
                 &lt;/cmsisVars&gt;
             &lt;/cmsisInfo&gt;

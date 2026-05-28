@@ -29,9 +29,7 @@ _MODULES = [
     "agx5_imx678",
 ]
 
-_OBJECTS = {
-    "LinuxCamera": "linux_camera",
-}
+_OBJECTS = {}
 
 __all__ = [
     "csi",

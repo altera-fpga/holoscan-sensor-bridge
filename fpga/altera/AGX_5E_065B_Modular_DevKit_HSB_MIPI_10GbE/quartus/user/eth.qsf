@@ -21,7 +21,7 @@ set_instance_assignment -name TERMINATION "OFF" -to sfp_tx_disable
 
 
 # Transceivers
-  set_location_assignment PIN_AY120 -to refclk_eth
+  set_location_assignment PIN_BC111 -to refclk_eth
 
 set_location_assignment PIN_AK135 -to serial_i_rx_serial_data
 set_location_assignment PIN_AK133 -to serial_i_rx_serial_data_n

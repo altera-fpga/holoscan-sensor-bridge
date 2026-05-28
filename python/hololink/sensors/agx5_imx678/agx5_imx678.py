@@ -20,17 +20,20 @@ import time
 
 import hololink as hololink_module
 
+# from . import agx5_imx678_mode as modes
 from .agx5_imx678_mode import (
     AGX5_IMX678_TABLE_END,
     AGX5_IMX678_TABLE_WAIT_MS,
     AGX5_IMX678_WAIT_MS,
     agx_imx678_start,
     agx_imx678_stop,
+    available_resolutions,
+    imx678_base_settings,
 )
 
 ######################################################################################
 # Camera info
-DRIVER_NAME = "FramosImx678"
+DRIVER_NAME = "Imx678-AGX5"
 
 # Camera I2C address.
 CAM_I2C_ADDRESS_0 = 0x37
@@ -43,7 +46,7 @@ class FramosImx678:
     def __init__(
         self, hololink_channel, i2c_bus=hololink_module.CAM_I2C_BUS, camera_id=0
     ):
-
+        print(f"Initializing FramosImx678 with camera_id={camera_id}")
         self.cam_id = camera_id
         self._hololink_channel = hololink_channel
         self._hololink = hololink_channel.hololink()
@@ -56,50 +59,82 @@ class FramosImx678:
         else:
             raise Exception(f"Unsupported camera_id={camera_id}")
 
-    def configure(self, frame_format):
-        print(
-            f"Configuring camera with frame format: Width={frame_format.width}, Height={frame_format.height}, Framerate={frame_format.framerate}, Pixel Format={frame_format.pixel_format}"
+    # Return the name of the sensor
+    def get_name(self):
+        return DRIVER_NAME
+
+    # Returns the mode matching the given settings, or raises an exception if not found.
+    def get_mode(self, height, frame_rate, bit_depth):
+        logging.info(
+            f"Getting mode for height={height}, frame_rate={frame_rate}, bit_depth={bit_depth}"
         )
-        self.set_mode(frame_format)
-        self._initialize(frame_format.settings)
+        if bit_depth == 10:
+            pixel_format = hololink_module.sensors.csi.PixelFormat.RAW_10
+        elif bit_depth == 12:
+            pixel_format = hololink_module.sensors.csi.PixelFormat.RAW_12
+        else:
+            raise Exception(f"Unsupported bit depth: {bit_depth}")
+
+        for mode in available_resolutions:
+            logging.debug(
+                f"Checking mode: height={mode.height}, frame_rate={mode.framerate}, pixel_format={mode.pixel_format}"
+            )
+            if (
+                mode.height == height
+                and mode.framerate == frame_rate
+                and mode.pixel_format == pixel_format
+            ):
+                return mode
+        raise Exception(f"Unsupported mode: {height}p{frame_rate}fps{pixel_format}")
+
+    def configure(self, mode):
+        logging.info(
+            f"Configuring camera with frame format: Width={mode.width}, Height={mode.height}, Framerate={mode.framerate}, Pixel Format={mode.pixel_format}"
+        )
+        self.set_mode(mode)
+        self._initialize(mode.settings)
 
     def _initialize(self, settings):
+        # Write the base settings for the sensor
+        self.write_registers(imx678_base_settings)
+        # Write the settings for the selected resolution
         self.write_registers(settings)
 
     def set_pattern(self):
         pass
 
     def start(self):
-        print("Starting camera")
+        logging.info("Starting camera")
         self.write_registers(agx_imx678_start)
 
     def stop(self):
+        logging.info("Stopping camera")
         self.write_registers(agx_imx678_stop)
 
-    def set_mode(self, frame_format):
+    def set_mode(self, mode):
         self._digital_black = 50  # 10bit value for digital black as per "Black Level Adjustment Function" in "IMX678 Software Reference Manual"
 
-        self._frame_format = frame_format
-        self._width = self._frame_format.width
-        self._height = self._frame_format.height
-        self._pixel_format = self._frame_format.pixel_format
+        self._mode = mode
+        self._width = self._mode.width
+        self._height = self._mode.height
+        self._pixel_format = self._mode.pixel_format
 
     def set_analog_gain_reg(self, value=0x20):
         if value < 0x00:
             logging.warn(f"AG value {value} is lower than the minimum.")
             value = 0x00
 
-        if value > 0xf0:
+        if value > 0xF0:
             logging.warn(f"AG value {value} is more than maximum.")
-            value = 0xf0
+            value = 0xF0
 
-        self.set_register(0x3070, (value & 0xFF) )
+        self.set_register(0x3070, (value & 0xFF))
         self.set_register(0x3071, (value & 0x300) >> 8)
 
         time.sleep(AGX5_IMX678_WAIT_MS / 1000)
 
     def configure_converter(self, converter):
-        print("configure_converter")
+        logging.info("configure_converter")
 
         # where do we find the first received byte?
         start_byte = converter.receiver_start_byte()
@@ -111,7 +146,7 @@ class FramosImx678:
         received_line_bytes = converter.received_line_bytes(transmitted_line_bytes)
 
         trailing_bytes = 0
-        
+
         converter.configure(
             start_byte,
             received_line_bytes,
@@ -128,7 +163,9 @@ class FramosImx678:
         serializer.append_uint16_be(register)
         read_byte_count = 1
         reply = self._i2c.i2c_transaction(
-            self._camera_i2c_address, write_bytes[: serializer.length()], read_byte_count
+            self._camera_i2c_address,
+            write_bytes[: serializer.length()],
+            read_byte_count,
         )
         deserializer = hololink_module.Deserializer(reply)
         r = deserializer.next_uint8()

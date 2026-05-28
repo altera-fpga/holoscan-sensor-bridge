@@ -1,14 +1,11 @@
-# Holoscan Sensor Bridge IMX678 MIPI to 10GbE System Example Design for Agilex™ 5 Devices
+# Holoscan Sensor Bridge IMX678 MIPI to 10GbE System Example Design for Agilex™ 5 Group B Devices
+
 
 ## Overview
 
-The Holoscan Sensor Bridge IMX678 MIPI to 10GbE System Example Design for Agilex™ 5 Devices demonstrates an implementation of using industry-standard Mobile Industry Processor Interface (MIPI) D-PHY and MIPI CSI-2 interface on Agilex™ 5 FPGAs to integrate to a Holoscan processing flow.
+The Holoscan Sensor Bridge IMX678 MIPI to 10GbE System Example Design for Agilex™ 5 Group B Devices demonstrates an implementation of using industry-standard Mobile Industry Processor Interface (MIPI) D-PHY and MIPI CSI-2 interface on Agilex™ 5 Group B FPGAs to integrate to a Holoscan processing flow.
 
-The MIPI interface supports up to 2.5Gbps per lane and up to 8x lanes per MIPI
-interface, enabling seamless data reception from multiple 4K image sensors to
-the FPGA fabric for further processing. Each MIPI CSI-2 IP instance converts
-pixel data to AXI4-Streaming outputs, enabling connectivity to other IP cores
-within the Altera® Video and Vision Processing (VVP) Suite.
+The MIPI interface supports up to 2.5Gbps per lane and up to 8x lanes per MIPI interface, enabling seamless data reception from multiple 4K image sensors to the FPGA fabric for further processing. Each MIPI CSI-2 IP instance converts pixel data to AXI4-Streaming outputs, enabling connectivity to other IP cores within the Altera® Video and Vision Processing (VVP) Suite.
 
 The FPGA design comprises a MIPI D-PHY and two MIPI CSI-2 interfaces connected to the NVIDIA Holoscan Sensor Bridge IP and the Altera® GTS Ethernet Hard IP.
 
@@ -17,7 +14,7 @@ A loopback channel has been implemented to allow the user to experiment with dat
 The software comprises a number of demonstration applications running within [NVIDIA Holoscan Sensor Bridge SDK](https://docs.nvidia.com/holoscan/sensor-bridge/latest/index.html).
 
 <p align="center">
-<img src="./assets/HSB_MIPI_10GbE_Overview.png" alt="Block diagram showing the HSB MIPI to 10GbE system architecture with MIPI camera inputs connecting through D-PHY and CSI-2 interfaces to FPGA fabric, then through Holoscan Sensor Bridge IP and Low Latency Ethernet 10G MAC IP to network output"><br>
+<img src="./assets/HSB_MIPI_10GbE_Overview.png" alt="Block diagram showing the HSB MIPI to 10GbE system architecture with MIPI camera inputs connecting through D-PHY and CSI-2 interfaces to FPGA fabric, replicating the streams then through Holoscan Sensor Bridge IP and GTS Ethernet IP to network output"><br>
 <strong>High-Level Block Diagram of the Holoscan Sensor Bridge System Example Design</strong>
 </p>
 
@@ -72,7 +69,7 @@ The following example applications are available to demonstrate the Holoscan Sen
 #### Build the Demo Docker Container
 Build the holoscan sensor bridge demonstration container. 
 
-For systems with dGPU, such as IGX Orin with a discreate GPU and OS configured as dGPU,
+For systems with dGPU, such as IGX Orin with a discrete GPU and OS configured as dGPU,
 
 ```bash
 cd <holoscan sensor bridge>
@@ -130,7 +127,7 @@ For build instructions refer to [Building the Design](#building-the-design).
 The below block diagram shows the data flow through the top level Platform Designer design, clock and reset systems are not shown.
 
 <p align="center">
-<img src="assets/pd_top.png" alt="Dual MIPI Ingest Block Diagram"><br>
+<img src="assets/MDK-10GbE-pd_top.png" alt="Dual MIPI Ingest Block Diagram"><br>
 <strong>Data Path Diagram of the Holoscan Sensor Bridge System Example Design</strong>
 </p>
 
@@ -140,7 +137,7 @@ The below block diagram shows the data flow through the top level Platform Desig
 
 The Thor AGX system supports Camera Over Ethernet hardware acceleration and a hardened ISP. The FPGA design supports these features however they are currently untested.
 
-To support the hardware ISP using COE on Thor the HSB IP video SIFs have been configured with the packetizer enabled and the following settings:
+To support COE on Thor the HSB IP video SIFs have been configured with the packetizer enabled and the following settings:
 
 ```
 SIF_RX_PACKETIZER_EN   1
@@ -207,6 +204,10 @@ The HSB IP allows the user to select between an external enumeration EEPROM or t
 
 Note that if an external enumeration EEPROM is selected, this device is expected to be on I2C bus 0.
 
+##### BUILD_REV
+
+The example design SW reports the top 32b of BUILD_REV as a datecode. The wrapper allows the user to select manually entering a build revision or automatically using the epoch time the IP was generated in Platform Designer.
+
 ---
 
 ### Project Structure
@@ -236,14 +237,16 @@ quartus
 ├── shell
 │   ├── AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE_supplemental.qsf  # Additional project settings
 │   ├── board_subsystem.qsf                                         # Board subsystem IO and source assignments
-│   └── clock_subsystem.qsf                                         # Clock subsystem IO and source assignments
+│   ├── clock_subsystem.qsf                                         # Clock subsystem IO and source assignments
+│   └── design.qsf                                                  # Additional design assignments
 └── user
     ├── eth.qsf                                                     # GTS Ethernet subsystem IO assignments
     ├── gts_eth_subsystem.qsf                                       # GTS Ethernet subsystem source assignments
-    ├── hsb.qsf                                                     # HSB subsystem IO assignments
     ├── hsb_subsystem.qsf                                           # HSB subsystem source assignments
-    ├── mipi.qsf                                                    # MIPI subsystem IO assignments
-    └── mipi_subsystem.qsf                                          # MIPI subsystem source assignments
+    ├── hsb.qsf                                                     # HSB subsystem IO assignments
+    ├── mipi_hsb_pipeline_subsystem.qsf                             # MIPI HSB Pipeline subsystem source assignments
+    ├── mipi_subsystem.qsf                                          # MIPI subsystem source assignments
+    └── mipi.qsf                                                    # MIPI subsystem IO assignments
 ```
 
 If a user is modifying the design for their own purposes these QSFs could be combined into a single file if desired.
@@ -258,6 +261,7 @@ AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE.v (Project Top Level)
             ├── clock_subsystem.qsys
             ├── gts_eth_subsystem.qsys
             ├── hsb_subsystem.qsys
+            ├── mipi_hsb_pipeline_subsystem.qsys
             └── mipi_subsystem.qsys
 ```
 
@@ -306,7 +310,7 @@ The MIPI inputs are synchronised onto the core video clock domain within the MIP
 
 #### `gts_eth_subsystem` (user)
 
-**Role:** **10 Gb Ethernet** using **GTS** transceiver IP and related support logic.
+**Role:** **10Gb Ethernet** using **GTS** transceiver IP and related support logic.
 
 **Functions:**
 
@@ -320,7 +324,7 @@ The MIPI inputs are synchronised onto the core video clock domain within the MIP
 
 #### `hsb_subsystem` (user)
 
-**Role:** **Holoscan Sensor Bridge subsystem** — instantiates HSB IP component and provides clocking and format adapters where necessary.
+**Role:** **Holoscan Sensor Bridge subsystem** — instantiates HSB IP component and provides clocking and format adapters for interfacing with Altera® Ethernet IP.
 
 > [!NOTE]
 > The NVIDIA HSB IP source location is set via `NV_HSB_IP_DIR` environment variable, see [NVIDIA Holoscan Sensor Bridge IP Requirements](#nvidia-holoscan-sensor-bridge-ip-requirements).
@@ -329,15 +333,24 @@ The MIPI inputs are synchronised onto the core video clock domain within the MIP
 
 - Core **HSB** IP instantiation
 - Host Interface Avalon Streaming <-> AXI-Streaming converters **(AVST/AXIS shims)**.
-- Sensor Interface adaptation - **CSI packers** for aligned data packing, AXIS shims for tuser/tkeep deltas
-- **VVP** FIFOs and shims for pipeline buffering.
 - **Avalon-MM bridges** for register/control access to design logic.
-- Clock/reset bridges for CPU-side, HIF, and **SIF** RX/TX clock domains.
+- Clock/reset bridges for CPU-side and Host Interface
 - **System ID** for design generation timestamping
-
+- Sensor Interface export
 
 **Top-level I/O:** 2x I2C master interfaces (open-drain handling in the top-level Verilog).
 
+#### `mipi_hsb_pipeline_subsystem` (user)
+
+**Role:** Converts from [Altera® Streaming Video Protocol (ASVP)](https://docs.altera.com/r/docs/683397/current/altera-streaming-video-protocol-specification/about-the-altera-streaming-video-protocol) to the packed CSI data format that is expected by the HSB IP and software.
+
+**Functions:**
+
+- **CSI packers** for aligned data packing.
+- **VVP FIFOs** for pipeline buffering.
+- **AXIS shims** for Sensor Interface adaptation - handling tuser/tkeep deltas between Altera® VVP IP and Holoscan Sensor Bridge.
+
+**Top-level I/O:** `none`
 
 #### `mipi_subsystem` (user)
 
@@ -399,16 +412,20 @@ Two Peripheral Buses are used in this design, each is converted to Avalon-MM usi
 
 ### Resource Utilisation
 
-The built resource utilisation for this design is below and includes breakdown per subsystem. This could be reduced by approximately 14k ALMs should [COE](#camera-over-ethernet) with hardware ISP not be required:
+The approximate built resource utilisation for this design is below and includes a breakdown per subsystem:
 
 |Subsystem| ALMs|Registers|M20ks|DSPs|
 |:-----:|:-----:|:-----:|:-----:|:-----:|
 |Board|16|32|0|0|
-|Clock|12|73|0|0|
-|GTS Ethernet|1024|1455|1|0|
-|HSB|27087|84878|52|4|
-|MIPI|9920|22673|23|0|
-|***Total***|***38059***|***109111***|***76***|***4***|
+|Clock|12|22|0|0|
+|GTS Ethernet|1018|1457|1|0|
+|HSB|26100|53580|38|4|
+|MIPI HSB Pipeline|931|1884|14|0|
+|MIPI|9898|19826|23|0|
+|***Total***|***37975***|***76801***|***76***|***4***|
+
+> [!NOTE]
+> The logic utilisation in this design is greatly increased by enabling [Camera over Ethernet](#camera-over-ethernet) support. For this design the increase is approximately 14k ALMs (2x Video SIFs x 7k ALMs) 
 
 ---
 
@@ -437,22 +454,18 @@ The SOF file can be converted to a non-volatile JIC to be programmed into the QS
 - Navigate to the `AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE/quartus/output_files` directory:
 
 ```bash
-quartus_pfg -c -o device=QSPI02G -o mode=ASX4 -o flash_loader=A5ED065BB32AE6SR0 AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE.sof AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE.jic
+quartus_pfg -c -o device=QSPI02G -o mode=ASX4 -o flash_loader=A5ED065BB32AE4S AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE.sof AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE.jic
 ```
 
 ---
 
 ## Hardware Requirements
 
-* [Agilex™ 5 FPGA E-Series 065B Modular Development Kit (ES) - MK-A5E065BB32AES1](https://www.altera.com/products/devkit/po-3001/agilex-5-fpga-and-soc-e-series-modular-development-kit-es)
+* [Agilex™ 5 FPGA and SoC E-Series 065B Modular Development Kit (Group B Device) - MK-A5E065BB32AEA](https://www.altera.com/products/devkit/po-3274/agilex-5-fpga-and-soc-e-series-065b-modular-development-kit)
 
-> [!IMPORTANT]
-> The MK-A5E065BB32AES1 has been discontinued per [PDN2513](https://docs.altera.com/v/u/docs/869016/pdn2513-product-discontinuance-of-selected-fpga-development-kit-ordering-codes), replaced by MK-A5E065BB32AEA.
-
-<br>
 
 <p align="center">
-<img src="assets/Agx5-MDK.png" alt="Agx5-MDK"><br>
+<img src="assets/Agx5b-MDK-C.png" alt="Agx5b-MDK"><br>
 <strong>Agilex™ 5 FPGA E-Series 065B Modular Development Kit</strong>
 </p>
 
@@ -485,37 +498,32 @@ quartus_pfg -c -o device=QSPI02G -o mode=ASX4 -o flash_loader=A5ED065BB32AE6SR0 
 <br>
 
 <p align="center">
-<img src="./assets/board-1.png" alt="board-1"><br>
+<img src="./assets/MDK-C_switches.png" alt="board-1"><br>
 <strong>Modular Development Board - Default Switch Positions</strong>
 </p>
 <br>
-
-* Connect micro USB cable between the carrier board (`J35`) and the Host PC.
-  This will be used for JTAG communication. Look at what ports are enumerated
-  on your Host computer. There should be a series of four.
-
-<br>
-
-<p align="center">
-<img src="./assets/Agx5-MDK-Conn.png" alt="Agx-MDK-Conn"><br>
-<strong>Board Connections</strong>
-</p>
-<br>
-
----
 
 ### Board and NVIDIA Host System Setup
 
 > [!WARNING]
 > Handle ESD-sensitive equipment (boards, microSD Cards, Camera sensors, etc.) only when properly grounded and at an ESD-safe workstation
 
-Make the required connections between the NVIDIA Host System and the Modular Development
-board as shown in the following diagram:
+<p align="center">
+<img src="./assets/MDK-C_Conn.png" alt="Agx-MDK-Conn"><br>
+<strong>MDK Carrier Card Board Connections</strong>
+</p>
+<br>
+
+* Connect micro USB cable between the carrier board USB JTAG Connector (`J35`) and the Configuation PC.
+  This will be used for JTAG communication.
+
+
+* Connect the NVIDIA Host System to the the Modular Development Kit's SFP28 connector as shown in the following diagram:
 
 <br/>
 
 <p align="center">
-<img src="./assets/ed-conn.png" alt="ed-conn"><br>
+<img src="./assets/Agx5b-MDK-ed-conn.png" alt="ed-conn"><br>
 <strong>Development Kit and Host System Connection Diagram</strong>
 </p>
 <br/>
@@ -523,12 +531,6 @@ board as shown in the following diagram:
 * Connect the Framos cable(s) between the Framos Camera Module(s) and the Modular
   Development board taking care to align the cable(s) correctly with the
   connectors (pin 1 to pin 1).
-
-<p align="center">
-<img src="./assets/Agx5-MDK-MIPI.png" alt="board-mipi"><br>
-<strong>Board MIPI connections</strong>
-</p>
-<br/>
 
 <p align="center">
 <img src="./assets/mipi-ribbon-connection.png" alt="mipi-ribbon"><br>
@@ -550,7 +552,7 @@ board as shown in the following diagram:
 ### Pre-Built Binaries
 
 Pre-built `SOF` and `JIC` binaries can be found as assets in this repository under the latest tag in the format:
-`altera-2.6.0-EA.X`
+`altera-2.6.0-EA2.X`
 
 |Product|Type|Description|
 |:-----:|:-----:|:-----:|
@@ -561,9 +563,13 @@ Pre-built `SOF` and `JIC` binaries can be found as assets in this repository und
 
 ### Program the FPGA SOF
 
+> [!NOTE]
+> The Group A and B Agilex 5 Devices share the same JTAG code so appear with the same Device number (A5ED065AB32A) when running Auto Detect.
+> This is correct for the Group B Modular Development Kit.
+
 * To program the FPGA using SOF:
 
-  * Power down the board. Set MSEL=JTAG by setting the **S4** dip switch
+  * Power down the board. Set MSEL=JTAG by setting the **SW1** dip switch
     on the SOM to **OFF-OFF**.
     * This prevents the starting of any bootloader and FPGA configuration after
       power up and until the SOF is programmed over JTAG.
@@ -584,16 +590,16 @@ Pre-built `SOF` and `JIC` binaries can be found as assets in this repository und
 
 
     <p align="center">
-    <img src="./assets/hw-setup-set.png" alt="hw-setup-set"><br>
+    <img src="./assets/programmer-agx5b-c-jtag-setup.png" alt="jtag-setup"><br>
     <strong>Programmer GUI Hardware Settings</strong>
     </p>
     <br/>
 
-    * Click "Auto Detect", select the device `A5EC065BB32AR0` and press **"Change File..."**
+    * Click "Auto Detect", select the device `A5ED065AB32A` and press **"Change File..."**
 
     <br>
     <p align="center">
-    <img src="./assets/programmer-agx5.png" alt="programmer-agx5"><br>
+    <img src="./assets/programmer-agx5b-c-chain.png" alt="Programmer chain with Agilex 5 Group A"><br>
     <strong>Programmer after "Auto Detect"</strong>
     </p>
     <br/>
@@ -601,7 +607,7 @@ Pre-built `SOF` and `JIC` binaries can be found as assets in this repository und
     * Select your `AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE.sof` file. Check the **"Program/Configure"** box and press the **"Start"** button (see below). Wait until the programming has been completed.
 
   <p align="center">
-  <img src="./assets/programmer-agx5-3.png" alt="programmer-agx5-3"><br>
+  <img src="./assets/programmer-agx5b-c-sof.png" alt="Program Agilex 5 Group A with SOF"><br>
   <strong>Programming the FPGA with SOF file</strong>
   </p>
   <br/>
@@ -612,12 +618,12 @@ Pre-built `SOF` and `JIC` binaries can be found as assets in this repository und
 
 > [!IMPORTANT]
 > Once the JIC is programmed the FPGA MSEL pins must be set to Fast Active Serial mode to allow configuration from the QSPI flash on power up.
-> Power down the board. Set MSEL=AS Fast Mode by setting the **S4** dip switch on the SOM to **ON-ON**.
+> Power down the board. Set MSEL=AS Fast Mode by setting the **SW1** dip switch on the SOM to **ON-ON**.
 > If Fast Active Serial Mode is enabled the QSPI will appear in the JTAG chain on Auto Detect.
 
 * To program the QSPI flash using JIC:
 
-  * If the QSPI state is unknown, power down the board. Set MSEL=JTAG by setting the **S4** dip switch
+  * If the QSPI state is unknown, power down the board. Set MSEL=JTAG by setting the **SW1** dip switch
     on the SOM to **OFF-OFF**.
     * This prevents the starting of any bootloader and FPGA configuration after
       power up and until the JIC is programmed over JTAG.
@@ -642,9 +648,9 @@ Pre-built `SOF` and `JIC` binaries can be found as assets in this repository und
     * Press the **"Start"** button (see below). Wait until the programming has been completed.
 
   <p align="center">
-  <img src="./assets/programmer-agx5-jic.png" alt="programmer-agx5-jic"><br>
+  <img src="./assets/programmer-agx5b-c-jic.png" alt="Program MDK QSPI with JIC"><br>
   <strong>Programming the QSPI with JIC file</strong>
   </p>
   <br/>
 
-  * Power cycle the board to use the newly flashed image
+  * To use the newly flashed image Power cycle the board, ensuring that the **SW1** dip switch on the SOM is set to to **ON-ON**.

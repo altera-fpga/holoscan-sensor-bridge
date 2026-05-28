@@ -19662,7 +19662,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="DEVICE" type="string">
           <ipxact:name>DEVICE</ipxact:name>
           <ipxact:displayName>DEVICE</ipxact:displayName>
-          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
+          <ipxact:value>A5ED065BB32AE4S</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="DEVICE_FAMILY" type="string">
           <ipxact:name>DEVICE_FAMILY</ipxact:name>
@@ -19672,7 +19672,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="DEVICE_SPEEDGRADE" type="string">
           <ipxact:name>DEVICE_SPEEDGRADE</ipxact:name>
           <ipxact:displayName>DEVICE_SPEEDGRADE</ipxact:displayName>
-          <ipxact:value>6</ipxact:value>
+          <ipxact:value>4</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="die_types" type="string">
           <ipxact:name>die_types</ipxact:name>
@@ -19692,12 +19692,12 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="die_revisions" type="string">
           <ipxact:name>die_revisions</ipxact:name>
           <ipxact:displayName>die_revisions</ipxact:displayName>
-          <ipxact:value>MAIN_SM7_REVA</ipxact:value>
+          <ipxact:value>MAIN_SM7_REVB</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="device_iobank_rev" type="string">
           <ipxact:name>device_iobank_rev</ipxact:name>
           <ipxact:displayName>device_iobank_rev</ipxact:displayName>
-          <ipxact:value>IO96B</ipxact:value>
+          <ipxact:value>IO96B_REVB1</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="tx_spread_spectrum_en" type="string">
           <ipxact:name>tx_spread_spectrum_en</ipxact:name>
@@ -20351,7 +20351,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="device" type="string">
           <ipxact:name>device</ipxact:name>
           <ipxact:displayName>Device</ipxact:displayName>
-          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
+          <ipxact:value>A5ED065BB32AE4S</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="deviceFamily" type="string">
           <ipxact:name>deviceFamily</ipxact:name>
@@ -20361,7 +20361,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="deviceSpeedGrade" type="string">
           <ipxact:name>deviceSpeedGrade</ipxact:name>
           <ipxact:displayName>Device Speed Grade</ipxact:displayName>
-          <ipxact:value>6</ipxact:value>
+          <ipxact:value>4</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="generationId" type="int">
           <ipxact:name>generationId</ipxact:name>

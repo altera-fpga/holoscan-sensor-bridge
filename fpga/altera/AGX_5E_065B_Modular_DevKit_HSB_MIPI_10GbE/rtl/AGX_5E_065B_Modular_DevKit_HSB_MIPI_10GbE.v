@@ -1,5 +1,5 @@
 // ##################################################################################
-// Copyright (C) 2025 Altera Corporation
+// Copyright (C) Altera Corporation
 //
 // This software and the related documents are Altera copyrighted materials, and
 // your use of them is governed by the express license under which they were
@@ -108,12 +108,12 @@ module AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE
    assign sfp_tx_disable = "1'b0";
 
    // Code auto-generated from script: hsb_subsystem
-   assign i_i2c_0_scl = o_i2c_0_scl_en ? i2c_0_scl : 1'b0;
-   assign i_i2c_0_sda = o_i2c_0_sda_en ? i2c_0_sda : 1'b0;
+   assign i_i2c_0_scl = i2c_0_scl;
+   assign i_i2c_0_sda = i2c_0_sda;
    assign i2c_0_scl = o_i2c_0_scl_en ? 1'bz : 1'b0;
    assign i2c_0_sda = o_i2c_0_sda_en ? 1'bz : 1'b0;
-   assign i_i2c_1_scl = o_i2c_1_scl_en ? i2c_1_scl : 1'b0;
-   assign i_i2c_1_sda = o_i2c_1_sda_en ? i2c_1_sda : 1'b0;
+   assign i_i2c_1_scl = i2c_1_scl;
+   assign i_i2c_1_sda = i2c_1_sda;
    assign i2c_1_scl = o_i2c_1_scl_en ? 1'bz : 1'b0;
    assign i2c_1_sda = o_i2c_1_sda_en ? 1'bz : 1'b0;
 
@@ -182,6 +182,7 @@ module AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE
 endmodule
 
 `default_nettype wire
+
 
 
 

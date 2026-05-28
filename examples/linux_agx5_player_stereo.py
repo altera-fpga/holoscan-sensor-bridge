@@ -37,6 +37,7 @@ class CameraStream:
         self._hololink_channel = hololink_channel
         self._camera = camera
 
+
 class MicroApplication(holoscan.core.Application):
     def __init__(
         self,
@@ -88,7 +89,7 @@ class MicroApplication(holoscan.core.Application):
                 block_size=camera_stream._camera._width
                 * ctypes.sizeof(ctypes.c_uint16)
                 * camera_stream._camera._height,
-                num_blocks=3,
+                num_blocks=6,
             )
 
             # Create a buffer pool for the Bayer Demosaic operator, use the first camera stream for size
@@ -102,7 +103,7 @@ class MicroApplication(holoscan.core.Application):
                 * rgba_components_per_pixel
                 * ctypes.sizeof(ctypes.c_uint16)
                 * camera_stream._camera._height,
-                num_blocks=3,
+                num_blocks=6,
             )
 
             if self._frame_limit:
@@ -118,14 +119,18 @@ class MicroApplication(holoscan.core.Application):
                 )
                 camera_stream._condition = self._ok
 
-            camera_stream._csi_to_bayer_operator = hololink_module.operators.CsiToBayerOp(
-                self,
-                name=f"csi_to_bayer-{camera_stream._cam_name}",
-                allocator=camera_stream._csi_to_bayer_pool,
-                cuda_device_ordinal=self._cuda_device_ordinal,
-                out_tensor_name = f"{camera_stream._cam_name}",
+            camera_stream._csi_to_bayer_operator = (
+                hololink_module.operators.CsiToBayerOp(
+                    self,
+                    name=f"csi_to_bayer-{camera_stream._cam_name}",
+                    allocator=camera_stream._csi_to_bayer_pool,
+                    cuda_device_ordinal=self._cuda_device_ordinal,
+                    out_tensor_name=f"{camera_stream._cam_name}",
+                )
             )
-            camera_stream._camera.configure_converter(camera_stream._csi_to_bayer_operator)
+            camera_stream._camera.configure_converter(
+                camera_stream._csi_to_bayer_operator
+            )
 
             frame_size = camera_stream._csi_to_bayer_operator.get_csi_length()
 
@@ -136,17 +141,19 @@ class MicroApplication(holoscan.core.Application):
                 # a unique channel number from 0..63.
                 coe_channel = 0
                 pixel_width = camera_stream._camera._width
-                camera_stream._receiver_operator = hololink_module.operators.LinuxCoeReceiverOp(
-                    self,
-                    camera_stream._condition,
-                    name=f"receiver-{camera_stream._cam_name}",
-                    frame_size=frame_size,
-                    frame_context=frame_context,
-                    hololink_channel=camera_stream._hololink_channel,
-                    device=camera_stream._camera,
-                    coe_interface=self._coe_interface,
-                    pixel_width=pixel_width,
-                    coe_channel=coe_channel,
+                camera_stream._receiver_operator = (
+                    hololink_module.operators.LinuxCoeReceiverOp(
+                        self,
+                        camera_stream._condition,
+                        name=f"receiver-{camera_stream._cam_name}",
+                        frame_size=frame_size,
+                        frame_context=frame_context,
+                        hololink_channel=camera_stream._hololink_channel,
+                        device=camera_stream._camera,
+                        coe_interface=self._coe_interface,
+                        pixel_width=pixel_width,
+                        coe_channel=coe_channel,
+                    )
                 )
             else:
                 self._ibv_name = None
@@ -159,40 +166,46 @@ class MicroApplication(holoscan.core.Application):
                 infiniband_devices = hololink_module.infiniband_devices()
                 # If we don't have any roce connectivity then the use linux receiver
                 if len(infiniband_devices) == 0:
-                    camera_stream._receiver_operator = hololink_module.operators.LinuxReceiverOperator(
-                        self,
-                        camera_stream._condition,
-                        name=f"receiver-{camera_stream._cam_name}",
-                        frame_size=frame_size,
-                        frame_context=frame_context,
-                        hololink_channel=camera_stream._hololink_channel,
-                        device=camera_stream._camera,
-                        receiver_affinity={receiver_affinity},
+                    camera_stream._receiver_operator = (
+                        hololink_module.operators.LinuxReceiverOperator(
+                            self,
+                            camera_stream._condition,
+                            name=f"receiver-{camera_stream._cam_name}",
+                            frame_size=frame_size,
+                            frame_context=frame_context,
+                            hololink_channel=camera_stream._hololink_channel,
+                            device=camera_stream._camera,
+                            receiver_affinity={receiver_affinity},
+                        )
                     )
                 else:
                     infiniband_devices = hololink_module.infiniband_devices()
                     self._ibv_name = infiniband_devices[0]
                     self._ibv_port = 1
-                    camera_stream._receiver_operator = hololink_module.operators.RoceReceiverOp(
-                        self,
-                        camera_stream._condition,
-                        name=f"receiver-{camera_stream._cam_name}",
-                        frame_size=frame_size,
-                        frame_context=frame_context,
-                        ibv_name=self._ibv_name,
-                        ibv_port=self._ibv_port,
-                        hololink_channel=camera_stream._hololink_channel,
-                        device=camera_stream._camera,
+                    camera_stream._receiver_operator = (
+                        hololink_module.operators.RoceReceiverOp(
+                            self,
+                            camera_stream._condition,
+                            name=f"receiver-{camera_stream._cam_name}",
+                            frame_size=frame_size,
+                            frame_context=frame_context,
+                            ibv_name=self._ibv_name,
+                            ibv_port=self._ibv_port,
+                            hololink_channel=camera_stream._hololink_channel,
+                            device=camera_stream._camera,
+                        )
                     )
 
             pixel_format = camera_stream._camera.pixel_format()
             bayer_format = camera_stream._camera.bayer_format()
-            camera_stream._image_processor_operator = hololink_module.operators.ImageProcessorOp(
-                self,
-                name=f"image_processor-{camera_stream._cam_name}",
-                optical_black=camera_stream._camera.optical_black(),
-                bayer_format=bayer_format.value,
-                pixel_format=pixel_format.value,
+            camera_stream._image_processor_operator = (
+                hololink_module.operators.ImageProcessorOp(
+                    self,
+                    name=f"image_processor-{camera_stream._cam_name}",
+                    optical_black=camera_stream._camera.optical_black(),
+                    bayer_format=bayer_format.value,
+                    pixel_format=pixel_format.value,
+                )
             )
 
             print("bayer_format=", bayer_format)
@@ -204,22 +217,33 @@ class MicroApplication(holoscan.core.Application):
                 alpha_value=65535,
                 bayer_grid_pos=bayer_format.value,
                 interpolation_mode=0,
-                in_tensor_name = f"{camera_stream._cam_name}",
-                out_tensor_name = f"{camera_stream._cam_name}",
+                in_tensor_name=f"{camera_stream._cam_name}",
+                out_tensor_name=f"{camera_stream._cam_name}",
             )
 
             camera_stream._spec = holoscan.operators.HolovizOp.InputSpec(
-                f"{camera_stream._cam_name}", holoscan.operators.HolovizOp.InputType.COLOR
+                f"{camera_stream._cam_name}",
+                holoscan.operators.HolovizOp.InputType.COLOR,
             )
             camera_stream._view = holoscan.operators.HolovizOp.InputSpec.View()
             camera_stream._view.width = 1 / len(self._camera_streams)
             camera_stream._view.height = 1.0
-            camera_stream._view.offset_x = camera_stream._view.width * camera_stream._cam_idx
+            camera_stream._view.offset_x = (
+                camera_stream._view.width * camera_stream._cam_idx
+            )
             camera_stream._view.offset_y = 0.0
             camera_stream._spec.views = [camera_stream._view]
 
-            print(f"view=", camera_stream._view.width, camera_stream._view.height, camera_stream._view.offset_x, camera_stream._view.offset_y)
-        tensors=[camera_stream._spec for camera_stream in self._camera_streams.values()]
+            print(
+                f"view=",
+                camera_stream._view.width,
+                camera_stream._view.height,
+                camera_stream._view.offset_x,
+                camera_stream._view.offset_y,
+            )
+        tensors = [
+            camera_stream._spec for camera_stream in self._camera_streams.values()
+        ]
         print("tensors=", tensors)
         visualizer = holoscan.operators.HolovizOp(
             self,
@@ -228,18 +252,30 @@ class MicroApplication(holoscan.core.Application):
             headless=self._headless,
             framebuffer_srgb=True,
             tensors=tensors,
-            height = self._window_height,
-            width = self._window_width,
-            window_title = self._window_title,
+            height=self._window_height,
+            width=self._window_width,
+            window_title=self._window_title,
         )
-        
+
         for camera_stream in self._camera_streams.values():
-            self.add_flow(camera_stream._receiver_operator, camera_stream._csi_to_bayer_operator, {("output", "input")})
             self.add_flow(
-                camera_stream._csi_to_bayer_operator, camera_stream._image_processor_operator, {("output", "input")}
+                camera_stream._receiver_operator,
+                camera_stream._csi_to_bayer_operator,
+                {("output", "input")},
             )
-            self.add_flow(camera_stream._image_processor_operator, camera_stream._demosaic, {("output", "receiver")})
-            self.add_flow(camera_stream._demosaic, visualizer, {("transmitter", "receivers")})
+            self.add_flow(
+                camera_stream._csi_to_bayer_operator,
+                camera_stream._image_processor_operator,
+                {("output", "input")},
+            )
+            self.add_flow(
+                camera_stream._image_processor_operator,
+                camera_stream._demosaic,
+                {("output", "receiver")},
+            )
+            self.add_flow(
+                camera_stream._demosaic, visualizer, {("transmitter", "receivers")}
+            )
 
 
 def main():
@@ -280,7 +316,39 @@ def main():
         default=None,
         help="Name of interface connected to VETH 3276 (0xCCC).",
     )
-
+    parser.add_argument(
+        "--lines",
+        type=int,
+        default=1080,
+        choices=(720, 1080, 2160),
+        help="Set lines, default is 2160",
+    )
+    parser.add_argument(
+        "--frame-rate",
+        type=int,
+        default=60,
+        choices=(30, 60),
+        help="Set frame rate, default is 60",
+    )
+    parser.add_argument(
+        "--bit-depth",
+        type=int,
+        default=10,
+        choices=(10, 12),
+        help="Set bit depth, default is 10",
+    )
+    parser.add_argument(
+        "--window-height",
+        type=int,
+        default=2160 // 4,  # arbitrary default
+        help="Set the height of the displayed window",
+    )
+    parser.add_argument(
+        "--window-width",
+        type=int,
+        default=3840 // 2,  # arbitrary default
+        help="Set the width of the displayed window",
+    )
     args = parser.parse_args()
     hololink_module.logging_level(args.log_level)
     logging.info("Initializing.")
@@ -293,25 +361,17 @@ def main():
     cu_result, cu_context = cuda.cuDevicePrimaryCtxRetain(cu_device)
     assert cu_result == cuda.CUresult.CUDA_SUCCESS
 
-    uuid = "7b1fa8c7-31aa-44b6-abcc-eac134461fdc"
-    metadata = hololink_module.Metadata(
-        {
-            "test-parameter": "agx5_imx678_example",
-        }
-    )
-#    print(f"metadata={metadata}")
+    # Update the strategy as we expect Agilex 5E Group A+B boards to support 2 Sensors
+    b_mdk_uuid = "7b1fa8c7-31aa-44b6-abcc-eac134461fdc"
+    a_mdk_uuid = "b26763ac-af25-44f6-850e-dce30f33f4e3"
     uuid_strategy = hololink_module.BasicEnumerationStrategy(
-        metadata,
-        total_sensors=2,
-        total_dataplanes=1,
-        sifs_per_sensor=1
+        total_sensors=2, total_dataplanes=1, sifs_per_sensor=1
     )
-    hololink_module.Enumerator.set_uuid_strategy(uuid, uuid_strategy)
-
-    # Use HIF 0 for now    
-    channel_metadata = hololink_module.Enumerator.find_channel(
-        channel_ip="192.168.0.2"
-    )
+    hololink_module.Enumerator.set_uuid_strategy(a_mdk_uuid, uuid_strategy)
+    hololink_module.Enumerator.set_uuid_strategy(b_mdk_uuid, uuid_strategy)
+    
+    # Use HIF 0 for now
+    channel_metadata = hololink_module.Enumerator.find_channel(channel_ip="192.168.0.2")
 
     # We don't want to enable "vsync_enable" as we do not have the VSYNC control logic on APB bus 6
     # Also not using ptp_enable
@@ -321,7 +381,7 @@ def main():
     # Create an array to hold the camera streams
     camera_streams = {}
 
-    for cam_index in [0,1]:
+    for cam_index in [0, 1]:
         # Get a handle to the Hololink device
         camera_channel = hololink_module.Metadata(channel_metadata)
         hololink_module.DataChannel.use_sensor(camera_channel, cam_index)
@@ -335,7 +395,14 @@ def main():
             cam_name = "left"
         else:
             cam_name = "right"
-        camera_streams[cam_index] = CameraStream(cam_index, cam_name, hololink_channel, camera)
+        camera_streams[cam_index] = CameraStream(
+            cam_index, cam_name, hololink_channel, camera
+        )
+
+    # select the required mode
+    mode = camera_streams[0]._camera.get_mode(
+        args.lines, args.frame_rate, args.bit_depth
+    )
 
     # Set up the application
     application = MicroApplication(
@@ -346,9 +413,9 @@ def main():
         camera_streams,
         args.frame_limit,
         args.coe_interface,
-        1920,   # window width
-        1080,   # window height
-        "AGX5 IMX678 Stereo Viewer"  # window title
+        args.window_width,
+        args.window_height,
+        "AGX5 IMX678 Stereo Viewer",  # window title
     )
 
     # Run it.
@@ -359,19 +426,17 @@ def main():
 
         for camera_stream in camera_streams.values():
             camera = camera_stream._camera
-            # Configures the camera for 3840x2160, 60fps, 10bits per pixel
-            camera.configure(
-                hololink_module.sensors.agx5_imx678.agx5_imx678_mode.agx5_imx678_1920_1080_60Hz_10BPP
-            )
+            camera.configure(mode)
 
             camera.set_analog_gain_reg(args.gain)
-        
+
         application.run()
     finally:
         hololink.stop()
 
     (cu_result,) = cuda.cuDevicePrimaryCtxRelease(cu_device)
     assert cu_result == cuda.CUresult.CUDA_SUCCESS
+
 
 if __name__ == "__main__":
     main()

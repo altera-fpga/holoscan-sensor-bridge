@@ -23,6 +23,8 @@
 import argparse
 import ctypes
 import logging
+import os
+import sys
 
 import cuda.bindings.driver as cuda
 import holoscan
@@ -74,7 +76,7 @@ class MicroApplication(holoscan.core.Application):
             block_size=self._camera._width
             * ctypes.sizeof(ctypes.c_uint16)
             * self._camera._height,
-            num_blocks=2,
+            num_blocks=4,
         )
         csi_to_bayer_operator = hololink_module.operators.CsiToBayerOp(
             self,
@@ -136,7 +138,7 @@ class MicroApplication(holoscan.core.Application):
             * rgba_components_per_pixel
             * ctypes.sizeof(ctypes.c_uint16)
             * self._camera._height,
-            num_blocks=2,
+            num_blocks=4,
         )
         demosaic = holoscan.operators.BayerDemosaicOp(
             self,
@@ -197,10 +199,30 @@ def main():
         default=32,
         help="Set Analog Gain, RANGE(0 to 240). Default is 32",
     )
-
+    parser.add_argument(
+        "--lines",
+        type=int,
+        default=2160,
+        choices=(720, 1080, 2160),
+        help="Set lines, default is 2160",
+    )
+    parser.add_argument(
+        "--frame-rate",
+        type=int,
+        default=60,
+        choices=(30, 60),
+        help="Set frame rate, default is 60",
+    )
+    parser.add_argument(
+        "--bit-depth",
+        type=int,
+        default=10,
+        choices=(10, 12),
+        help="Set bit depth, default is 10",
+    )
     args = parser.parse_args()
     hololink_module.logging_level(args.log_level)
-#    hololink_module.set_hsb_log_level(hololink_module.HSB_LOG_LEVEL_DEBUG)
+    #    hololink_module.set_hsb_log_level(hololink_module.HSB_LOG_LEVEL_DEBUG)
     logging.info("Initializing.")
     # Get a handle to the GPU
     (cu_result,) = cuda.cuInit(0)
@@ -211,21 +233,17 @@ def main():
     cu_result, cu_context = cuda.cuDevicePrimaryCtxRetain(cu_device)
     assert cu_result == cuda.CUresult.CUDA_SUCCESS
 
-    # Update the default metadata to support 2 cameras on the AGX5
-    uuid = "7b1fa8c7-31aa-44b6-abcc-eac134461fdc"
-    metadata = hololink_module.Metadata()
+    # Update the strategy as we expect Agilex 5E Group A+B boards to support 2 Sensors
+    b_mdk_uuid = "7b1fa8c7-31aa-44b6-abcc-eac134461fdc"
+    a_mdk_uuid = "b26763ac-af25-44f6-850e-dce30f33f4e3"
     uuid_strategy = hololink_module.BasicEnumerationStrategy(
-        metadata,
-        total_sensors=2,
-        total_dataplanes=1,
-        sifs_per_sensor=1
+        total_sensors=2, total_dataplanes=1, sifs_per_sensor=1
     )
-    hololink_module.Enumerator.set_uuid_strategy(uuid, uuid_strategy)
+    hololink_module.Enumerator.set_uuid_strategy(a_mdk_uuid, uuid_strategy)
+    hololink_module.Enumerator.set_uuid_strategy(b_mdk_uuid, uuid_strategy)
 
     # Get a handle to the Hololink device
-    channel_metadata = hololink_module.Enumerator.find_channel(
-        channel_ip="192.168.0.2"
-    )
+    channel_metadata = hololink_module.Enumerator.find_channel(channel_ip="192.168.0.2")
 
     # We don't want to enable "vsync_enable" as we do not have the VSYNC control logic on APB bus 6
     # Also not using ptp_enable
@@ -241,6 +259,8 @@ def main():
     camera = hololink_module.sensors.agx5_imx678.agx5_imx678.FramosImx678(
         hololink_channel, camera_id=args.cam
     )
+    # select the required mode
+    mode = camera.get_mode(args.lines, args.frame_rate, args.bit_depth)
 
     # Set up the application
     application = MicroApplication(
@@ -258,20 +278,20 @@ def main():
     hololink.start()
     try:
         hololink.reset()
+
         # Configures the camera for 3840x2160, 60fps, 10bits per pixel
-        camera.configure(
-            hololink_module.sensors.agx5_imx678.agx5_imx678_mode.agx5_imx678_3840_2160_60Hz_10BPP
-        )
+        camera.configure(mode)
 
         # Set a default analog gain
         camera.set_analog_gain_reg(args.gain)
-        
+
         application.run()
     finally:
         hololink.stop()
 
     (cu_result,) = cuda.cuDevicePrimaryCtxRelease(cu_device)
     assert cu_result == cuda.CUresult.CUDA_SUCCESS
+
 
 if __name__ == "__main__":
     main()

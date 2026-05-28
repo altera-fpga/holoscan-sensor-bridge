@@ -12240,7 +12240,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="SYS_INFO_DEVICE" type="string">
           <ipxact:name>SYS_INFO_DEVICE</ipxact:name>
           <ipxact:displayName>SYS_INFO_DEVICE</ipxact:displayName>
-          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
+          <ipxact:value>A5ED065BB32AE4S</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="SYS_INFO_DEVICE_FAMILY_VARIANT" type="string">
           <ipxact:name>SYS_INFO_DEVICE_FAMILY_VARIANT</ipxact:name>
@@ -12255,7 +12255,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="SYS_INFO_DEVICE_SPEEDGRADE" type="string">
           <ipxact:name>SYS_INFO_DEVICE_SPEEDGRADE</ipxact:name>
           <ipxact:displayName>SYS_INFO_DEVICE_SPEEDGRADE</ipxact:displayName>
-          <ipxact:value>6</ipxact:value>
+          <ipxact:value>4</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="SYS_INFO_DEVICE_TEMPERATURE_GRADE" type="string">
           <ipxact:name>SYS_INFO_DEVICE_TEMPERATURE_GRADE</ipxact:name>
@@ -12275,12 +12275,12 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="SYS_INFO_DEVICE_DIE_REVISIONS" type="string">
           <ipxact:name>SYS_INFO_DEVICE_DIE_REVISIONS</ipxact:name>
           <ipxact:displayName>SYS_INFO_DEVICE_DIE_REVISIONS</ipxact:displayName>
-          <ipxact:value>MAIN_SM7_REVA</ipxact:value>
+          <ipxact:value>MAIN_SM7_REVB</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="SYS_INFO_DEVICE_IOBANK_REVISION" type="string">
           <ipxact:name>SYS_INFO_DEVICE_IOBANK_REVISION</ipxact:name>
           <ipxact:displayName>SYS_INFO_DEVICE_IOBANK_REVISION</ipxact:displayName>
-          <ipxact:value>IO96B</ipxact:value>
+          <ipxact:value>IO96B_REVB1</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="SYS_INFO_DEVICE_DIE_TYPES" type="string">
           <ipxact:name>SYS_INFO_DEVICE_DIE_TYPES</ipxact:name>
@@ -15629,7 +15629,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="device" type="string">
           <ipxact:name>device</ipxact:name>
           <ipxact:displayName>Device</ipxact:displayName>
-          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
+          <ipxact:value>A5ED065BB32AE4S</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="deviceFamily" type="string">
           <ipxact:name>deviceFamily</ipxact:name>
@@ -15639,7 +15639,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="deviceSpeedGrade" type="string">
           <ipxact:name>deviceSpeedGrade</ipxact:name>
           <ipxact:displayName>Device Speed Grade</ipxact:displayName>
-          <ipxact:value>6</ipxact:value>
+          <ipxact:value>4</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="generationId" type="int">
           <ipxact:name>generationId</ipxact:name>

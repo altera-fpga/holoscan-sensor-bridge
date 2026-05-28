@@ -2637,10 +2637,15 @@ Altera and sold by Altera or its authorized distributors.-->
     </altera:entity_info>
     <altera:altera_module_parameters>
       <ipxact:parameters>
-        <ipxact:parameter parameterId="BUILD_REV" type="string">
-          <ipxact:name>BUILD_REV</ipxact:name>
+        <ipxact:parameter parameterId="USE_EPOCH_TIME" type="int">
+          <ipxact:name>USE_EPOCH_TIME</ipxact:name>
+          <ipxact:displayName>Use Epoch Time for Build Revision</ipxact:displayName>
+          <ipxact:value>1</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="BUILD_REV_GUI" type="string">
+          <ipxact:name>BUILD_REV_GUI</ipxact:name>
           <ipxact:displayName>Build Revision</ipxact:displayName>
-          <ipxact:value>116414495064064</ipxact:value>
+          <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="UUID" type="string">
           <ipxact:name>UUID</ipxact:name>
@@ -4255,7 +4260,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="DEVICE" type="string">
           <ipxact:name>DEVICE</ipxact:name>
           <ipxact:displayName>DEVICE</ipxact:displayName>
-          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
+          <ipxact:value>A5ED065BB32AE4S</ipxact:value>
         </ipxact:parameter>
       </ipxact:parameters>
     </altera:altera_module_parameters>
@@ -4269,7 +4274,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="device" type="string">
           <ipxact:name>device</ipxact:name>
           <ipxact:displayName>Device</ipxact:displayName>
-          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
+          <ipxact:value>A5ED065BB32AE4S</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="deviceFamily" type="string">
           <ipxact:name>deviceFamily</ipxact:name>
@@ -4279,7 +4284,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="deviceSpeedGrade" type="string">
           <ipxact:name>deviceSpeedGrade</ipxact:name>
           <ipxact:displayName>Device Speed Grade</ipxact:displayName>
-          <ipxact:value>6</ipxact:value>
+          <ipxact:value>4</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="generationId" type="int">
           <ipxact:name>generationId</ipxact:name>
@@ -5925,6 +5930,6 @@ Altera and sold by Altera or its authorized distributors.-->
       </altera:interface_mapping>
     </altera:altera_interface_boundary>
     <altera:altera_has_warnings>false</altera:altera_has_warnings>
-    <altera:altera_has_errors>true</altera:altera_has_errors>
+    <altera:altera_has_errors>false</altera:altera_has_errors>
   </ipxact:vendorExtensions>
 </ipxact:component>

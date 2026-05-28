@@ -635,7 +635,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="device_die_revisions" type="string">
           <ipxact:name>device_die_revisions</ipxact:name>
           <ipxact:displayName>device_die_revisions</ipxact:displayName>
-          <ipxact:value>MAIN_SM7_REVA</ipxact:value>
+          <ipxact:value>MAIN_SM7_REVB</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="device_highspeed_tile" type="string">
           <ipxact:name>device_highspeed_tile</ipxact:name>
@@ -645,7 +645,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="device" type="string">
           <ipxact:name>device</ipxact:name>
           <ipxact:displayName>device</ipxact:displayName>
-          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
+          <ipxact:value>A5ED065BB32AE4S</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="device_family" type="string">
           <ipxact:name>device_family</ipxact:name>
@@ -674,7 +674,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="device" type="string">
           <ipxact:name>device</ipxact:name>
           <ipxact:displayName>Device</ipxact:displayName>
-          <ipxact:value>A5ED065BB32AE6SR0</ipxact:value>
+          <ipxact:value>A5ED065BB32AE4S</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="deviceFamily" type="string">
           <ipxact:name>deviceFamily</ipxact:name>
@@ -684,7 +684,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <ipxact:parameter parameterId="deviceSpeedGrade" type="string">
           <ipxact:name>deviceSpeedGrade</ipxact:name>
           <ipxact:displayName>Device Speed Grade</ipxact:displayName>
-          <ipxact:value>6</ipxact:value>
+          <ipxact:value>4</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="generationId" type="int">
           <ipxact:name>generationId</ipxact:name>
