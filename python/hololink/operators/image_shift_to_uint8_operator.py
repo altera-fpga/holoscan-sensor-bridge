@@ -28,9 +28,11 @@ def shift_to_uint8(img, shift):
 
 
 class ImageShiftToUint8Operator(holoscan.core.Operator):
-    def __init__(self, *args, shift=0, **kwargs):
+    def __init__(self, *args, shift=0, in_tensor_name="", out_tensor_name="", **kwargs):
         super().__init__(*args, **kwargs)
         self._shift = shift
+        self._in_tensor_name = in_tensor_name
+        self._out_tensor_name = out_tensor_name
 
     def setup(self, spec):
         logging.info("setup")
@@ -46,6 +48,6 @@ class ImageShiftToUint8Operator(holoscan.core.Operator):
     def compute(self, op_input, op_output, context):
         # Get input message
         in_message = op_input.receive("input")
-        cp_frame = cp.from_dlpack(in_message.get(""))
+        cp_frame = cp.from_dlpack(in_message.get(self._in_tensor_name))
         cp_frame_uint8 = shift_to_uint8(cp_frame, self._shift)
-        op_output.emit({"": cp_frame_uint8}, "output")
+        op_output.emit({self._out_tensor_name: cp_frame_uint8}, "output")

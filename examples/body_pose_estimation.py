@@ -67,6 +67,8 @@ class PostprocessorOp(Operator):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._out_tensor_name = kwargs.get("out_tensor_name", "")
+        print(f"Initializing PostprocessorOp, out_tensor_name: {self._out_tensor_name}")
         # Output tensor names
         self.outputs = [
             "boxes",
@@ -89,6 +91,9 @@ class PostprocessorOp(Operator):
             "right_ankles",
             "segments",
         ]
+        self.tensor_outputs = {}
+        for output in self.outputs:
+            self.tensor_outputs[output] = f"{output}{self._out_tensor_name}"
 
         # Indices for each keypoint as defined by YOLOv8 pose model
         self.NOSE = slice(5, 7)
@@ -171,7 +176,7 @@ class PostprocessorOp(Operator):
             zeros = hs.as_tensor(np.zeros([1, 2, 2]).astype(np.float32))
 
             for output in self.outputs:
-                out_message.add(zeros, output)
+                out_message.add(zeros, self.tensor_outputs[output])
             op_output.emit(out_message, "out")
             return
 
@@ -238,7 +243,9 @@ class PostprocessorOp(Operator):
         # Create output message
         out_message = Entity(context)
         for output in self.outputs:
-            out_message.add(hs.as_tensor(out[output] / self.image_dim), output)
+            out_message.add(
+                hs.as_tensor(out[output] / self.image_dim), self.tensor_outputs[output]
+            )
         op_output.emit(out_message, "out")
 
     def nms(self, inputs, scores):

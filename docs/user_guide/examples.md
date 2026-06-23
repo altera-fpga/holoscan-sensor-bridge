@@ -370,7 +370,7 @@ For AGX systems (or unaccelerated configurations),
 communication with CPU-based CRC validation.
 
 Before running the app,
-[enable PTP sync](https://docs.nvidia.com/holoscan/sensor-bridge/latest/setup.html#) on
+[enable PTP sync](https://docs.nvidia.com/holoscan/sensor-bridge/2.6.0/setup.html#) on
 your setup, then use the following commands to run the example. Running the frame
 validation example on AGX Orin systems:
 
@@ -397,7 +397,7 @@ GPU-accelerated CRC checking using nvCOMP 5.0. This example uses the accelerated
 receiver operator and requires ConnectX SmartNIC controllers.
 
 Before running the app,
-[enable PTP sync](https://docs.nvidia.com/holoscan/sensor-bridge/latest/setup.html#) on
+[enable PTP sync](https://docs.nvidia.com/holoscan/sensor-bridge/2.6.0/setup.html#) on
 your setup, then use the following command:
 
 ```sh
@@ -454,7 +454,7 @@ validation with GPU-accelerated CRC checking using nvCOMP 5.0. This example uses
 FUSA CoE capture operator for accelerated network data transfer.
 
 Before running the app,
-[enable PTP sync](https://docs.nvidia.com/holoscan/sensor-bridge/latest/setup.html#) on
+[enable PTP sync](https://docs.nvidia.com/holoscan/sensor-bridge/2.6.0/setup.html#) on
 your setup, then use the following command:
 
 ```sh

@@ -1,0 +1,10 @@
+// From examples provided by NVIDIA
+0x0200_0020, 0x0000_2000 // inst_dec_0, ecb_udp_port
+0x0200_021C, 0x0000_2329 // ctrl_evt_0, ctrl_evt_host_udp_port
+0x0200_0220, 0x0000_2329 // ctrl_evt_0, ctrl_evt_fpga_udp_port
+0x0200_0108, 0x0000_0064 // eth_pkt_0 , Eth pkt data plane priority
+0x0200_0024, 0x0000_3000 // inst_dec_0, stx_udp_port
+
+// Do not remove as needed to setup the I2C controller
+0x0300_0210, 0x004C_4B40 // i2c timeout
+0x0300_020c, 0x0000_0200 // i2c clock
