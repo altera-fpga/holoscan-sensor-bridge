@@ -572,7 +572,7 @@ board as shown in the following diagram:
 ### Pre-Built Binaries
 
 Pre-built `SOF` and `JIC` binaries can be found as assets in this repository under the release tag:
-https://github.com/altera-fpga/holoscan-sensor-bridge/releases/tag/altera-release-2.6.0-1
+https://github.com/altera-fpga/holoscan-sensor-bridge/releases/tag/altera-release-2.6.0-2
 
 |Product|Type|Description|
 |:-----:|:-----:|:-----:|

@@ -565,7 +565,7 @@ quartus_pfg -c -o device=QSPI02G -o mode=ASX4 -o flash_loader=A5ED065AB32AE1V AG
 ### Pre-Built Binaries
 
 Pre-built `SOF` and `JIC` binaries can be found as assets in this repository under the release tag:
-https://github.com/altera-fpga/holoscan-sensor-bridge/releases/tag/altera-release-2.6.0-1
+https://github.com/altera-fpga/holoscan-sensor-bridge/releases/tag/altera-release-2.6.0-2
 
 |Product|Type|Description|
 |:-----:|:-----:|:-----:|

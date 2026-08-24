@@ -277,6 +277,8 @@ RUN ${APT_CACHE_MOUNT} apt-get update \
     && curl -fsSL -O https://developer.download.nvidia.com/compute/nvcomp/5.2.0/local_installers/nvcomp-local-repo-ubuntu${UBUNTU_VERSION}-5.2.0_5.2.0-1_${TARGETARCH}.deb \
     && dpkg -i nvcomp-local-repo-ubuntu${UBUNTU_VERSION}-5.2.0_5.2.0-1_${TARGETARCH}.deb \
     && cp /var/nvcomp-local-repo-ubuntu${UBUNTU_VERSION}-5.2.0/nvcomp-*-keyring.gpg /usr/share/keyrings/ \
+    # the pinning file needs to come alphanumerically before any other pinning files where the package matches. On IGX Orin, the cuda-repository-pin-600 file is present with a "Package: *" and otherwise takes precedence over this
+    && printf 'Package: *\nPin: origin ""\nPin-Priority: 1001\n' > /etc/apt/preferences.d/00-nv-local-repo \
     && apt-get update \
     && DEB_DEPENDENCIES="libnvcomp5-cuda-${CUDA_VERSION_MAJOR} libnvcomp5-dev-cuda-${CUDA_VERSION_MAJOR} libnvcomp5-static-cuda-${CUDA_VERSION_MAJOR} nvcomp-cuda-${CUDA_VERSION_MAJOR}" \
     && if [ -n "$IBV_DEVICES" ] ; then \
