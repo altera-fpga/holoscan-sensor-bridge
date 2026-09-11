@@ -19,7 +19,7 @@
 #
 # Quartus Prime
 # Version 26.1.0 Build 110 03/26/2026 SC Pro Edition
-# Date created = 13:15:15  June 11, 2026
+# Date created = 10:55:19  September 11, 2026
 #
 # -------------------------------------------------------------------------- #
 set_global_assignment -name TOP_LEVEL_ENTITY AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE

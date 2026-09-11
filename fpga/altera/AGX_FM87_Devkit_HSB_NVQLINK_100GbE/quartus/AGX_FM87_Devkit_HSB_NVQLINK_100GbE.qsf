@@ -1,0 +1,47 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) 2026  Altera Corporation. All rights reserved.
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and any partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, the Altera Quartus Prime License Agreement,
+# the Altera IP License Agreement, or other applicable license
+# agreement, including, without limitation, that your use is for
+# the sole purpose of programming logic devices manufactured by
+# Altera and sold by Altera or its authorized distributors.  Please
+# refer to the Altera Software License Subscription Agreements 
+# on the Quartus Prime software download page.
+#
+# -------------------------------------------------------------------------- #
+#
+# Quartus Prime
+# Version 26.1.0 Build 110 03/26/2026 SC Pro Edition
+# Date created = 10:55:19  September 11, 2026
+#
+# -------------------------------------------------------------------------- #
+set_global_assignment -name TOP_LEVEL_ENTITY AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+set_global_assignment -name FAMILY "Agilex 7"
+set_global_assignment -name DEVICE AGIB027R31B1E1V
+set_global_assignment -name IP_SEARCH_PATHS "./../non_qpds_ip/**/*;./../rtl/shell/**/*;./../rtl/user/**/*;\$"
+set_global_assignment -name SEED 1
+set_instance_assignment -name PARTITION_COLOUR 4285529948 -to AGX_FM87_Devkit_HSB_NVQLINK_100GbE -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+set_instance_assignment -name PARTITION_COLOUR 4294939049 -to auto_fab_0 -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+set_global_assignment -name SOURCE_TCL_SCRIPT_FILE shell/board_subsystem.qsf
+set_global_assignment -name GENERATE_COMPRESSED_SOF ON
+set_global_assignment -name SOURCE_TCL_SCRIPT_FILE shell/clock_subsystem.qsf
+set_global_assignment -name SOURCE_TCL_SCRIPT_FILE shell/design.qsf
+set_global_assignment -name SOURCE_TCL_SCRIPT_FILE shell/AGX_FM87_Devkit_HSB_NVQLINK_100GbE_supplemental.qsf
+set_global_assignment -name RESERVE_ALL_UNUSED_PINS_WEAK_PULLUP "AS INPUT TRI-STATED WITH WEAK PULL-UP"
+set_global_assignment -name SOURCE_TCL_SCRIPT_FILE user/eth.qsf
+set_global_assignment -name SOURCE_TCL_SCRIPT_FILE user/ftile_eth_subsystem.qsf
+set_global_assignment -name SOURCE_TCL_SCRIPT_FILE user/hsb.qsf
+set_global_assignment -name SOURCE_TCL_SCRIPT_FILE user/hsb_subsystem.qsf
+set_global_assignment -name SOURCE_TCL_SCRIPT_FILE user/nvqlink_subsystem.qsf
+set_global_assignment -name SDC_FILE ../sdc/shell/design.sdc
+set_global_assignment -name SDC_FILE ../sdc/shell/board_subsystem.sdc
+set_global_assignment -name SDC_FILE ../sdc/user/nvqlink_subsystem.sdc
+set_global_assignment -name SDC_FILE ../sdc/user/hsb_subsystem.sdc
+set_global_assignment -name DESIGN_ASSISTANT_WAIVER_FILE design.dawf

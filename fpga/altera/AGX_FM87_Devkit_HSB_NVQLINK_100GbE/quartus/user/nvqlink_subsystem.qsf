@@ -1,0 +1,2 @@
+set_global_assignment -name IP_FILE ../rtl/user/ip/nvqlink_subsystem/nvqlink_subsystem_nvqlink_analyzer.ip
+set_global_assignment -name QSYS_FILE ../rtl/user/nvqlink_subsystem.qsys

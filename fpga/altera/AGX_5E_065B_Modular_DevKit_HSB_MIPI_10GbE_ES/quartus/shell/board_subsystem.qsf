@@ -28,17 +28,15 @@ set_global_assignment -name PWRMGT_LINEAR_FORMAT_N "-12"
 set_global_assignment -name PWRMGT_TRANSLATED_VOLTAGE_VALUE_UNIT VOLTS
 set_global_assignment -name BOARD default
 
-  set_global_assignment -name USE_PWRMGT_SCL SDM_IO0
-  set_global_assignment -name USE_PWRMGT_SDA SDM_IO16
-  set_global_assignment -name PWRMGT_SLAVE_DEVICE1_ADDRESS 75
-  set_global_assignment -name PWRMGT_SLAVE_DEVICE2_ADDRESS 00
-  set_global_assignment -name PWRMGT_SLAVE_DEVICE3_ADDRESS 00
-  set_global_assignment -name PWRMGT_SLAVE_DEVICE4_ADDRESS 00
-  set_global_assignment -name PWRMGT_SLAVE_DEVICE5_ADDRESS 00
-  set_global_assignment -name PWRMGT_SLAVE_DEVICE6_ADDRESS 00
-  set_global_assignment -name PWRMGT_SLAVE_DEVICE7_ADDRESS 00
-  set_global_assignment -name STRATIX_JTAG_USER_CODE 4
-  set_global_assignment -name USE_CHECKSUM_AS_USERCODE OFF
+set_global_assignment -name USE_PWRMGT_SCL SDM_IO0
+set_global_assignment -name USE_PWRMGT_SDA SDM_IO16
+set_global_assignment -name PWRMGT_SLAVE_DEVICE1_ADDRESS 75
+set_global_assignment -name PWRMGT_SLAVE_DEVICE2_ADDRESS 00
+set_global_assignment -name PWRMGT_SLAVE_DEVICE3_ADDRESS 00
+set_global_assignment -name PWRMGT_SLAVE_DEVICE4_ADDRESS 00
+set_global_assignment -name PWRMGT_SLAVE_DEVICE5_ADDRESS 00
+set_global_assignment -name PWRMGT_SLAVE_DEVICE6_ADDRESS 00
+set_global_assignment -name PWRMGT_SLAVE_DEVICE7_ADDRESS 00
 
 #=================================================================================
 # set pin assignments
@@ -46,24 +44,20 @@ set_global_assignment -name BOARD default
 # clock/global reset
 # (HVIO6C_PLLREFCLK1) SI5332A-GM1 OUT4, default to 100MHz
 set_location_assignment PIN_BK31      -to clk_100_mhz
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_100_mhz -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE_ES
+set_instance_assignment -name INPUT_TERMINATION OFF -to clk_100_mhz
+set_instance_assignment -name GLOBAL_SIGNAL ON -to clk_100_mhz -entity top
 
 # pin FPGA_CORE_RESETn, silkscreen=FPGA_RESET
 set_location_assignment PIN_BU28      -to rst_pb_n
-
-set_instance_assignment -name GLOBAL_SIGNAL ON -to clk_100_mhz -entity top
-
-set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clk_100_mhz -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE_ES
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to rst_pb_n -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE_ES
+set_instance_assignment -name INPUT_TERMINATION OFF -to rst_pb_n
 
 # push buttons and LEDs
 set_location_assignment PIN_BW19 -to user_pb_n[0]  -comment "FPGA_PB0"
-
 set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to user_pb_n[0] -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE_ES
+set_instance_assignment -name INPUT_TERMINATION OFF -to user_pb_n[0]
 
-set_instance_assignment -name IO_STANDARD "1.1 V" -to user_led[0] -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE_ES
-set_instance_assignment -name IO_STANDARD "1.1 V" -to user_led[1] -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE_ES
-set_instance_assignment -name IO_STANDARD "1.1 V" -to user_led[2] -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE_ES
-set_instance_assignment -name IO_STANDARD "1.1 V" -to user_led[3] -entity AGX_5E_065B_Modular_DevKit_HSB_MIPI_10GbE_ES
 
 # ddr
 

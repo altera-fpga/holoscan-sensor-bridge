@@ -13,10 +13,12 @@
 
 // Avalon to AXIS shim module in SystemVerilog
 module hsb_avst_axis_shim #(
-    parameter int C_BYTE_SWAP          = 1,     // Byte Swap enable
-    parameter int C_AV_EMPTY_WIDTH     = 3,     // Bits in the Avalon empty signal
-    parameter int C_M_AXIS_TDATA_WIDTH = 96,    // Bits per avalon data word
-    parameter int C_AXIS_TUSER_WIDTH   = 1      // Bits per av_sink_startofpacket
+    parameter int C_BYTE_SWAP           = 1,     // Byte Swap enable
+    parameter int C_AV_EMPTY_WIDTH      = 3,     // Bits in the Avalon empty signal
+    parameter int C_AV_ERROR_WIDTH      = 6,     // Bits in the Avalon error signal
+    parameter int C_M_AXIS_TDATA_WIDTH  = 96,    // Bits per avalon data word
+    parameter int C_AXIS_TUSER_WIDTH    = 1,     // Bits in AXI TUSER.
+    parameter int C_USE_ERROR_FOR_TUSER = 0      // Sets AXI Tuser if there is any AVST Error
 )(
     input  logic                                 clk,
     input  logic                                 resetn,
@@ -25,6 +27,7 @@ module hsb_avst_axis_shim #(
     input  logic                                 av_sink_endofpacket,
     input  logic [C_M_AXIS_TDATA_WIDTH-1:0]      av_sink_data,
     input  logic [C_AV_EMPTY_WIDTH-1:0]          av_sink_empty,
+    input  logic [C_AV_ERROR_WIDTH-1:0]          av_sink_error,
     input  logic                                 av_sink_valid,
     output logic                                 av_sink_ready,
 
@@ -76,7 +79,7 @@ module hsb_avst_axis_shim #(
         if (av_ready_in_out) begin
             data_reg        <= av_sink_data;
             tlast_reg       <= tlast;
-            tuser_reg       <= av_sink_startofpacket;
+            tuser_reg       <= (C_USE_ERROR_FOR_TUSER) ? (|av_sink_error) : '0;
             valid_bytes_reg <= valid_bytes;
         end
 
@@ -88,7 +91,7 @@ module hsb_avst_axis_shim #(
                 m_axis_tkeep     <= gen_tkeep(valid_bytes_reg);
             end else begin
                 m_axis_tdata_out <= av_sink_data;
-                m_axis_tuser[0]  <= av_sink_startofpacket;
+                m_axis_tuser[0]  <= (C_USE_ERROR_FOR_TUSER) ? (|av_sink_error) : '0;
                 m_axis_tlast     <= tlast;
                 m_axis_tkeep     <= gen_tkeep(valid_bytes);
             end

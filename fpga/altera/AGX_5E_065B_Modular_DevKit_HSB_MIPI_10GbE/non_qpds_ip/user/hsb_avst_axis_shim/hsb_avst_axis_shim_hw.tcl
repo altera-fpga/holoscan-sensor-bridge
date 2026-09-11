@@ -68,11 +68,19 @@ set_parameter_property  C_AV_EMPTY_WIDTH            DESCRIPTION           "Empty
 set_parameter_property  C_AV_EMPTY_WIDTH            VISIBLE               false
 set_parameter_property  C_AV_EMPTY_WIDTH            DERIVED               true
 
+add_parameter           C_AV_ERROR_WIDTH            Integer               6
+set_parameter_property  C_AV_ERROR_WIDTH            DISPLAY_NAME          "Error Width"
+set_parameter_property  C_AV_ERROR_WIDTH            HDL_PARAMETER         true
+set_parameter_property  C_AV_ERROR_WIDTH            AFFECTS_ELABORATION   true
+set_parameter_property  C_AV_ERROR_WIDTH            DESCRIPTION           "Error width"
+set_parameter_property  C_AV_ERROR_WIDTH            VISIBLE               false
+set_parameter_property  C_AV_ERROR_WIDTH            DERIVED               true
+
 
 add_parameter           C_M_AXIS_TDATA_WIDTH        INTEGER               64
 set_parameter_property  C_M_AXIS_TDATA_WIDTH        DISPLAY_NAME          "Bus Data Width"
 set_parameter_property  C_M_AXIS_TDATA_WIDTH        VISIBLE               true
-set_parameter_property  C_M_AXIS_TDATA_WIDTH        ALLOWED_RANGES        32:256
+set_parameter_property  C_M_AXIS_TDATA_WIDTH        ALLOWED_RANGES        32:512
 set_parameter_property  C_M_AXIS_TDATA_WIDTH        HDL_PARAMETER         true
 set_parameter_property  C_M_AXIS_TDATA_WIDTH        AFFECTS_ELABORATION   true
 set_parameter_property  C_M_AXIS_TDATA_WIDTH        DESCRIPTION           "Bus Data width"
@@ -92,11 +100,19 @@ set_parameter_property  C_BYTE_SWAP                 DISPLAY_NAME          "Byte 
 set_parameter_property  C_BYTE_SWAP                 DESCRIPTION           "Swaps Byte order of entire bus."
 set_parameter_property  C_BYTE_SWAP                 AFFECTS_ELABORATION   false
 
+add_parameter           C_USE_ERROR_FOR_TUSER       INTEGER               0
+set_parameter_property  C_USE_ERROR_FOR_TUSER       ALLOWED_RANGES        0:1
+set_parameter_property  C_USE_ERROR_FOR_TUSER       DISPLAY_HINT          boolean
+set_parameter_property  C_USE_ERROR_FOR_TUSER       HDL_PARAMETER         true
+set_parameter_property  C_USE_ERROR_FOR_TUSER       DISPLAY_NAME          "Use AVST Error Port to Set AXI Tuser"
+set_parameter_property  C_USE_ERROR_FOR_TUSER       DESCRIPTION           "Use AVST Error Port to Set AXI Tuser."
+set_parameter_property  C_USE_ERROR_FOR_TUSER       AFFECTS_ELABORATION   false
 
 add_display_item  ""  "Streaming Parameters"  GROUP
 add_display_item "Streaming Parameters" C_M_AXIS_TDATA_WIDTH parameter
 add_display_item "Streaming Parameters" C_AXIS_TUSER_WIDTH parameter
 add_display_item "Streaming Parameters" C_BYTE_SWAP parameter
+add_display_item "Streaming Parameters" C_USE_ERROR_FOR_TUSER parameter
 
 # Callback for the composition of this component
 set_module_property ELABORATION_CALLBACK elaboration_cb
@@ -107,7 +123,10 @@ proc elaboration_cb {} {
 
   add_av_st_input_port   clk  av_sink  8 1 2 0 0 1 "" ${bytes}
 
+  add_interface_port      av_sink  av_sink_error  error  input  6
+
   set_parameter_value     C_AV_EMPTY_WIDTH   [clogb2_pure ${bytes}]
+  set_parameter_value     C_AV_ERROR_WIDTH   6
 
   common_add_axi4s_interface_tkeep  m_axis clk resetn master
 

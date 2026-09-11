@@ -1,0 +1,15 @@
+{
+  "base_addr": "0x3000_0000",
+  "w_data": 256,
+  "depth": 16384,
+  "signals": [
+    { "name": "ptp_sif_nsec", "lsb": 0, "width": 32, "radix": "hex" },
+    { "name": "ptp_sif_sec", "lsb": 32, "width": 32, "radix": "hex" },
+    { "name": "ptp_sync_nsec", "lsb": 64, "width": 32, "radix": "hex" },
+    { "name": "ptp_sync_sec", "lsb": 96, "width": 32, "radix": "hex" },
+    { "name": "frame_cnt", "lsb": 128, "width": 12, "radix": "hex" },
+    { "name": "sof", "lsb": 140, "width": 1, "radix": "bin" },
+    { "name": "eof", "lsb": 141, "width": 1, "radix": "bin" },
+    { "name": "fixed_data", "lsb": 142, "width": 114, "radix": "hex" }
+  ]
+}

@@ -10,7 +10,7 @@ The FPGA design comprises a MIPI D-PHY and two MIPI CSI-2 interfaces connected t
 
 A loopback channel has been implemented to allow the user to experiment with data transfer without requiring MIPI cameras.
 
-The software comprises a number of demonstration applications running within [NVIDIA Holoscan Sensor Bridge SDK](https://docs.nvidia.com/holoscan/sensor-bridge/2.6.0/).
+The software comprises a number of demonstration applications running within [NVIDIA Holoscan Sensor Bridge SDK](https://archive.docs.nvidia.com/holoscan/sensor-bridge/2.6.0/).
 
 <p align="center">
 <img src="./assets/HSB_MIPI_25GbE_Overview.png" alt="Block diagram showing the HSB MIPI to 25GbE system architecture with MIPI camera inputs connecting through D-PHY and CSI-2 interfaces to FPGA fabric, replicating the streams then through Holoscan Sensor Bridge IP and GTS Ethernet IP to network output"><br>
@@ -43,7 +43,7 @@ The software comprises a number of demonstration applications running within [NV
 - [Hardware Requirements](#hardware-requirements)
 - [Hardware Setup](#hardware-setup)
   - [Setting Up your Modular Development Board](#setting-up-your-modular-development-board)
-  - [Board and NVIDIA Host System Setup](#board-and-nvidia-host-system-setup)
+  - [NVIDIA Host System Setup](#nvidia-host-system-setup)
 - [Programming the FPGA](#programming-the-fpga)
   - [Pre-Built Binaries](#pre-built-binaries)
   - [Program the FPGA SOF](#program-the-fpga-sof)
@@ -59,8 +59,8 @@ The software comprises a number of demonstration applications running within [NV
 Before running the demonstrations ensure that you have
 
 - [Set up the Agilex™ 5 Development Kit](#setting-up-your-modular-development-board).
-- [Set up the NVIDIA host system](#board-and-nvidia-host-system-setup).
-- [Programmed the FPGA](#programming-the-fpga).
+- [Set up the NVIDIA host system](#nvidia-host-system-setup).
+- [Programming the FPGA](#programming-the-fpga).
 
 ### Demo Applications
 
@@ -111,14 +111,14 @@ python3 examples/agx5_multiviewer.py --cam 8 --frame-rate 30
 
 * YOLOv8 Body Pose Example
 
-[Follow instructions to download YOLOv8 ONNX Model](https://docs.nvidia.com/holoscan/sensor-bridge/2.6.0/examples.html#running-the-imx274-body-pose-example)
+[Follow instructions to download YOLOv8 ONNX Model](https://archive.docs.nvidia.com/holoscan/sensor-bridge/2.6.0/examples.html#running-the-imx274-body-pose-example)
 ```bash
 python3 examples/linux_body_pose_estimation_agx5.py
 ```
 
 * TAO PeopleNet Example
 
-[Follow instructions to download TAO PeopleNet Model](https://docs.nvidia.com/holoscan/sensor-bridge/2.6.0/examples.html#running-the-imx274-tao-peoplenet-example)
+[Follow instructions to download TAO PeopleNet Model](https://archive.docs.nvidia.com/holoscan/sensor-bridge/2.6.0/examples.html#running-the-imx274-tao-peoplenet-example)
 ```bash
 python3 examples/linux_tao_peoplenet_agx5.py
 ```
@@ -179,13 +179,13 @@ holoscan-sensor-bridge
         └── AGX_5E_065A_Modular_DevKit_HSB_MIPI_25GbE
 ```
 
-For detailed information about the NVIDIA HSB IP please refer to the [NVIDIA documentation](https://docs.nvidia.com/holoscan/sensor-bridge/2.6.0/fpga_index.html).
+For detailed information about the NVIDIA HSB IP please refer to the [NVIDIA documentation](https://archive.docs.nvidia.com/holoscan/sensor-bridge/2.6.0/fpga_index.html).
 
 ---
 
 ### Platform Designer HSB IP Component
 
-Altera® has created a Platform Designer component to facilitate easy configuration and integration of the NVIDIA HSB IP. The component allows the user to set all the macros defined in the IP Integration section of the HSB IP documentation and auto-generates the header file that is used by the IP. https://docs.nvidia.com/holoscan/sensor-bridge/2.6.0/ip_integration.html. The values that can be selected are limited to what's specified in the documentation.
+Altera® has created a Platform Designer component to facilitate easy configuration and integration of the NVIDIA HSB IP. The component allows the user to set all the macros defined in the IP Integration section of the HSB IP documentation and auto-generates the header file that is used by the IP. https://archive.docs.nvidia.com/holoscan/sensor-bridge/2.6.0/ip_integration.html. The values that can be selected are limited to what's specified in the documentation.
 
 When generated the PD component outputs a SystemVerilog wrapper which instantiates the NVIDIA HOLOLINK_top entity. This wrapper only instantiates interfaces that are enabled and safe states any that require it.
 
@@ -516,11 +516,6 @@ quartus_pfg -c -o device=QSPI02G -o mode=ASX4 -o flash_loader=A5ED065AB32AE1V AG
 </p>
 <br>
 
-### Board and NVIDIA Host System Setup
-
-> [!WARNING]
-> Handle ESD-sensitive equipment (boards, microSD Cards, Camera sensors, etc.) only when properly grounded and at an ESD-safe workstation
-
 <p align="center">
 <img src="./assets/MDK-C_Conn.png" alt="Agx-MDK-Conn"><br>
 <strong>MDK Carrier Card Board Connections</strong>
@@ -530,6 +525,10 @@ quartus_pfg -c -o device=QSPI02G -o mode=ASX4 -o flash_loader=A5ED065AB32AE1V AG
 * Connect micro USB cable between the carrier board USB JTAG Connector (`J35`) and the Configuation PC.
   This will be used for JTAG communication.
 
+### NVIDIA Host System Setup
+
+> [!IMPORTANT]
+> Setup the NVIDIA Host System following the [NVIDIA Host setup instructions](https://archive.docs.nvidia.com/holoscan/sensor-bridge/2.6.0/setup.html).
 
 * Connect the NVIDIA Host System to the the Modular Development Kit's SFP28 connector as shown in the following diagram:
 
@@ -565,7 +564,7 @@ quartus_pfg -c -o device=QSPI02G -o mode=ASX4 -o flash_loader=A5ED065AB32AE1V AG
 ### Pre-Built Binaries
 
 Pre-built `SOF` and `JIC` binaries can be found as assets in this repository under the release tag:
-https://github.com/altera-fpga/holoscan-sensor-bridge/releases/tag/altera-release-2.6.0-2
+https://github.com/altera-fpga/holoscan-sensor-bridge/releases/tag/altera-release-2.6.0-3
 
 |Product|Type|Description|
 |:-----:|:-----:|:-----:|

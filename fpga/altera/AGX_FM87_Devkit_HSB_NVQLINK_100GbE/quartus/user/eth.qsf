@@ -1,0 +1,68 @@
+###################################################################################
+# Copyright (C) 2025 Altera Corporation
+#
+# This software and the related documents are Altera copyrighted materials, and
+# your use of them is governed by the express license under which they were
+# provided to you ("License"). Unless the License provides otherwise, you may
+# not use, modify, copy, publish, distribute, disclose or transmit this software
+# or the related documents without Altera's prior written permission.
+#
+# This software and the related documents are provided as is, with no express
+# or implied warranties, other than those that are expressly stated in the License.
+###################################################################################
+
+
+# # Bank 6B (3.3V)
+# set_location_assignment PIN_BF25 -to sfp_tx_disable
+# set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to sfp_tx_disable
+# set_instance_assignment -name TERMINATION "OFF" -to sfp_tx_disable
+
+# QSFP control pins (100G-4 / FGT)
+set_location_assignment PIN_CP23 -to qsfp_lowpwr
+set_location_assignment PIN_CM23 -to qsfp_rstn
+
+set_instance_assignment -name MESSAGE_DISABLE 13410 -to qsfp_lowpwr -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+set_instance_assignment -name MESSAGE_DISABLE 13410 -to qsfp_rstn   -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+
+set_instance_assignment -name IO_STANDARD   "1.2 V" -to qsfp_lowpwr -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+set_instance_assignment -name IO_STANDARD   "1.2 V" -to qsfp_rstn   -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+
+set_instance_assignment -name SLEW_RATE     1       -to qsfp_lowpwr -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+set_instance_assignment -name SLEW_RATE     1       -to qsfp_rstn   -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+
+
+# # Transceivers (4 lanes) - 100G-4 / FGT
+# Lane order: stream 0 (master) must be on fgt_q2_ch3 (AC10/AC4), per Error 22811.
+# AC10=ch3, Y7=ch2, W10=ch1, T7=ch0 (TX); AC4=ch3, T1=ch2, W4=ch1, M1=ch0 (RX)
+set_location_assignment PIN_AC10 -to serial_o_tx_serial[0]
+set_location_assignment PIN_Y7   -to serial_o_tx_serial[1]
+set_location_assignment PIN_W10  -to serial_o_tx_serial[2]
+set_location_assignment PIN_T7   -to serial_o_tx_serial[3]
+
+set_location_assignment PIN_AB11 -to serial_o_tx_serial_n[0]
+set_location_assignment PIN_AA8  -to serial_o_tx_serial_n[1]
+set_location_assignment PIN_V11  -to serial_o_tx_serial_n[2]
+set_location_assignment PIN_U8   -to serial_o_tx_serial_n[3]
+
+set_location_assignment PIN_AC4  -to serial_i_rx_serial[0]
+set_location_assignment PIN_T1   -to serial_i_rx_serial[1]
+set_location_assignment PIN_W4   -to serial_i_rx_serial[2]
+set_location_assignment PIN_M1   -to serial_i_rx_serial[3]
+
+set_location_assignment PIN_AB5  -to serial_i_rx_serial_n[0]
+set_location_assignment PIN_U2   -to serial_i_rx_serial_n[1]
+set_location_assignment PIN_V5   -to serial_i_rx_serial_n[2]
+set_location_assignment PIN_N2   -to serial_i_rx_serial_n[3]
+
+set_location_assignment PIN_R14  -to refclk_eth_fgt
+
+# set_instance_assignment -name IO_STANDARD "CURRENT MODE LOGIC (CML)"    -to refclk_eth                -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+# set_instance_assignment -name IO_STANDARD "HIGH SPEED DIFFERENTIAL I/O" -to serial_i_rx_serial_data   -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+# set_instance_assignment -name IO_STANDARD "HIGH SPEED DIFFERENTIAL I/O" -to serial_i_rx_serial_data_n -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+# set_instance_assignment -name IO_STANDARD "HIGH SPEED DIFFERENTIAL I/O" -to serial_o_tx_serial_data   -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+# set_instance_assignment -name IO_STANDARD "HIGH SPEED DIFFERENTIAL I/O" -to serial_o_tx_serial_data_n -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+
+
+set_instance_assignment -name IO_STANDARD "HIGH SPEED DIFFERENTIAL I/O" -to serial_o_tx_serial -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+set_instance_assignment -name IO_STANDARD "HIGH SPEED DIFFERENTIAL I/O" -to serial_i_rx_serial -entity AGX_FM87_Devkit_HSB_NVQLINK_100GbE
+

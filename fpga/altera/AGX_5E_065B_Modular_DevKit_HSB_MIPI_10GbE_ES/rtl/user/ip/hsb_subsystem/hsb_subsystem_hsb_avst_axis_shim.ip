@@ -140,6 +140,14 @@ Altera and sold by Altera or its authorized distributors.-->
                 <ipxact:name>av_sink_ready</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
+            <ipxact:portMap>
+              <ipxact:logicalPort>
+                <ipxact:name>error</ipxact:name>
+              </ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>av_sink_error</ipxact:name>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
           </ipxact:portMaps>
         </ipxact:abstractionType>
       </ipxact:abstractionTypes>
@@ -429,6 +437,24 @@ Altera and sold by Altera or its authorized distributors.-->
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
+        <ipxact:name>av_sink_error</ipxact:name>
+        <ipxact:wire>
+          <ipxact:direction>in</ipxact:direction>
+          <ipxact:vectors>
+            <ipxact:vector>
+              <ipxact:left>0</ipxact:left>
+              <ipxact:right>5</ipxact:right>
+            </ipxact:vector>
+          </ipxact:vectors>
+          <ipxact:wireTypeDefs>
+            <ipxact:wireTypeDef>
+              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
+              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
+            </ipxact:wireTypeDef>
+          </ipxact:wireTypeDefs>
+        </ipxact:wire>
+      </ipxact:port>
+      <ipxact:port>
         <ipxact:name>m_axis_tvalid</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>out</ipxact:direction>
@@ -546,6 +572,11 @@ Altera and sold by Altera or its authorized distributors.-->
           <ipxact:name>C_BYTE_SWAP</ipxact:name>
           <ipxact:displayName>Byte Swap</ipxact:displayName>
           <ipxact:value>1</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="C_USE_ERROR_FOR_TUSER" type="int">
+          <ipxact:name>C_USE_ERROR_FOR_TUSER</ipxact:name>
+          <ipxact:displayName>Use AVST Error Port to Set AXI Tuser</ipxact:displayName>
+          <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
       </ipxact:parameters>
     </altera:altera_module_parameters>
@@ -716,6 +747,15 @@ Altera and sold by Altera or its authorized distributors.-->
                     &lt;width&gt;1&lt;/width&gt;
                     &lt;lowerBound&gt;0&lt;/lowerBound&gt;
                     &lt;vhdlType&gt;STD_LOGIC&lt;/vhdlType&gt;
+                    &lt;terminationValue&gt;0&lt;/terminationValue&gt;
+                &lt;/port&gt;
+                &lt;port&gt;
+                    &lt;name&gt;av_sink_error&lt;/name&gt;
+                    &lt;role&gt;error&lt;/role&gt;
+                    &lt;direction&gt;Input&lt;/direction&gt;
+                    &lt;width&gt;6&lt;/width&gt;
+                    &lt;lowerBound&gt;0&lt;/lowerBound&gt;
+                    &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
                     &lt;terminationValue&gt;0&lt;/terminationValue&gt;
                 &lt;/port&gt;
             &lt;/ports&gt;
@@ -889,6 +929,7 @@ Altera and sold by Altera or its authorized distributors.-->
         <altera:port_mapping altera:name="av_sink_data" altera:internal="av_sink_data"></altera:port_mapping>
         <altera:port_mapping altera:name="av_sink_empty" altera:internal="av_sink_empty"></altera:port_mapping>
         <altera:port_mapping altera:name="av_sink_endofpacket" altera:internal="av_sink_endofpacket"></altera:port_mapping>
+        <altera:port_mapping altera:name="av_sink_error" altera:internal="av_sink_error"></altera:port_mapping>
         <altera:port_mapping altera:name="av_sink_ready" altera:internal="av_sink_ready"></altera:port_mapping>
         <altera:port_mapping altera:name="av_sink_startofpacket" altera:internal="av_sink_startofpacket"></altera:port_mapping>
         <altera:port_mapping altera:name="av_sink_valid" altera:internal="av_sink_valid"></altera:port_mapping>

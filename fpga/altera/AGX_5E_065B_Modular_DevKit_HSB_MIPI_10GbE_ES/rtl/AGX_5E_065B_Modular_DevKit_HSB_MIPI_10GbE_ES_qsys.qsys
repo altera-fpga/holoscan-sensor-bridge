@@ -3479,6 +3479,15 @@ Altera and sold by Altera or its authorized distributors.-->
                         &lt;vhdlType&gt;STD_LOGIC&lt;/vhdlType&gt;
                         &lt;terminationValue&gt;0&lt;/terminationValue&gt;
                     &lt;/port&gt;
+                    &lt;port&gt;
+                        &lt;name&gt;av_sink_error&lt;/name&gt;
+                        &lt;role&gt;error&lt;/role&gt;
+                        &lt;direction&gt;Input&lt;/direction&gt;
+                        &lt;width&gt;6&lt;/width&gt;
+                        &lt;lowerBound&gt;0&lt;/lowerBound&gt;
+                        &lt;vhdlType&gt;STD_LOGIC_VECTOR&lt;/vhdlType&gt;
+                        &lt;terminationValue&gt;0&lt;/terminationValue&gt;
+                    &lt;/port&gt;
                 &lt;/ports&gt;
                 &lt;assignments&gt;
                     &lt;assignmentValueMap/&gt;

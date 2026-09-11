@@ -6,8 +6,7 @@ Holoscan Sensor Bridge provides a FPGA based interface for low-latency sensor da
 processing using GPUs. Peripheral device data is acquired by the FPGA and sent via UDP
 to the host system where ConnectX devices can write that UDP data directly into GPU
 memory. This software package supports integrating that equipment into Holoscan
-pipelines and provides several examples showing video processing and inference using an
-IMX678 camera with [Altera Agilex™ FPGA Development Kits](./fpga/altera/README.md).
+pipelines and provides several examples with [Altera Agilex™ FPGA Development Kits](./fpga/altera/README.md).
 
 ## Setup
 

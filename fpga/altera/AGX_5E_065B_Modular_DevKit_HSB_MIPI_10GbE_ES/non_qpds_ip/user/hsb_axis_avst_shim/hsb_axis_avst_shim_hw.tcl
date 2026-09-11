@@ -72,7 +72,7 @@ set_parameter_property  C_AV_EMPTY_WIDTH       DERIVED             true
 add_parameter           C_S_AXIS_TDATA_WIDTH   INTEGER             64
 set_parameter_property  C_S_AXIS_TDATA_WIDTH   DISPLAY_NAME        "Bus Data Width"
 set_parameter_property  C_S_AXIS_TDATA_WIDTH   VISIBLE             true
-set_parameter_property  C_S_AXIS_TDATA_WIDTH   ALLOWED_RANGES      32:256
+set_parameter_property  C_S_AXIS_TDATA_WIDTH   ALLOWED_RANGES      32:512
 set_parameter_property  C_S_AXIS_TDATA_WIDTH   HDL_PARAMETER       true
 set_parameter_property  C_S_AXIS_TDATA_WIDTH   AFFECTS_ELABORATION true
 set_parameter_property  C_S_AXIS_TDATA_WIDTH   DESCRIPTION         "Bus Data width"

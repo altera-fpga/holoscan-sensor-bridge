@@ -1,0 +1,6 @@
+set_global_assignment -name IP_FILE ../rtl/user/ip/ftile_eth_subsystem/ftile_eth_subsystem_eth_f.ip
+set_global_assignment -name IP_FILE ../rtl/user/ip/ftile_eth_subsystem/ftile_eth_subsystem_eth_csr_rst_bridge.ip
+set_global_assignment -name IP_FILE ../rtl/user/ip/ftile_eth_subsystem/ftile_eth_subsystem_eth_csr_clk_bridge.ip
+set_global_assignment -name IP_FILE ../rtl/user/ip/ftile_eth_subsystem/ftile_eth_subsystem_eth_intf_reset_sync.ip
+set_global_assignment -name IP_FILE ../rtl/user/ip/ftile_eth_subsystem/ftile_eth_subsystem_eth_systemclk_f.ip
+set_global_assignment -name QSYS_FILE ../rtl/user/ftile_eth_subsystem.qsys

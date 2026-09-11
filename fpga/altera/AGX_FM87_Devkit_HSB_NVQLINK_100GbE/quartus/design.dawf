@@ -1,0 +1,63 @@
+# -------------------------------------------------------------------------- #
+#
+# Copyright (C) Altera Corporation. All rights reserved.
+# Your use of Altera Corporation's design tools, logic functions 
+# and other software and tools, and any partner logic 
+# functions, and any output files from any of the foregoing 
+# (including device programming or simulation files), and any 
+# associated documentation or information are expressly subject 
+# to the terms and conditions of the Altera Program License 
+# Subscription Agreement, the Altera Quartus Prime License Agreement,
+# the Altera IP License Agreement, or other applicable license
+# agreement, including, without limitation, that your use is for
+# the sole purpose of programming logic devices manufactured by
+# Altera and sold by Altera or its authorized distributors.  Please
+# refer to the Altera Software License Subscription Agreements 
+# on the Quartus Prime software download page.
+#
+# -------------------------------------------------------------------------- #
+
+::drc::add_waiver \
+	-rule_id {CDC-50001} \
+	-query_string {From =~ 'hsb_subsystem|hsb|hsb|i_hololink_top' && To =~ 'hsb_subsystem|hsb|hsb|i_hololink_top'} \
+	-tag {hololink-ip-cdc} \
+        -stages {{Timing Signoff}} \
+	-description {NVIDIA-owned HSB} \
+	-owner {user} \
+	-no_warn
+
+::drc::add_waiver \
+	-rule_id {CDC-50012} \
+	-query_string {From =~ 'hsb_subsystem|hsb|hsb|i_hololink_top' && To =~ 'hsb_subsystem|hsb|hsb|i_hololink_top'} \
+        -tag {hololink-ip-cdc} \
+        -stages {{Timing Signoff}} \
+	-description {NVIDIA-owned HSB} \
+	-owner {user} \
+	-no_warn
+
+::drc::add_waiver \
+	-rule_id {CDC-50004} \
+        -query_string {From =~ 'hsb_subsystem|hsb|hsb|i_hololink_top' && To =~ 'hsb_subsystem|hsb|hsb|i_hololink_top'} \
+	-tag {hololink-ip-cdc} \
+        -stages {{Timing Signoff}} \
+	-description {NVIDIA-owned HSB} \
+	-owner {user} \
+	-no_warn
+
+::drc::add_waiver \
+	-rule_id {CDC-50003} \
+        -query_string {From =~ 'hsb_subsystem|hsb|hsb|i_hololink_top' && To =~ 'hsb_subsystem|hsb|hsb|i_hololink_top'} \
+	-tag {hololink-ip-cdc} \
+        -stages {{Timing Signoff}} \
+	-description {NVIDIA-owned HSB} \
+	-owner {user} \
+	-no_warn
+
+::drc::add_waiver \
+	-rule_id {RES-50001} \
+	-query_string {"Reset Source" =~ 'eth_intf_reset_sync' && "Sample Register Being Reset" =~ 'u_rst_gen' && "Sample Register Being Reset" =~ 'aasr_rst_q'} \
+	-tag {eth-to-hsb-reset-crossing} \
+        -stages {{Timing Signoff}} \
+	-description {eth_intf_reset_sync reset_out is already synchronized before reaching hsb_subsystem. hsb's own u_rst_gen re-synchronizes it again locally per-domain via its aasr_rst_q (async-assert/sync-release) chain, which hsb_subsystem.sdc already false-paths.} \
+	-owner {user} \
+	-no_warn
