@@ -11,7 +11,7 @@ pipelines and provides several examples with [Altera Agilex™ FPGA Development 
 ## Setup
 
 Holoscan sensor bridge software comes with an
-[extensive user guide](https://docs.nvidia.com/holoscan/sensor-bridge/2.6.0/), including
+[extensive user guide](https://archive.docs.nvidia.com/holoscan/sensor-bridge/2.6.0/), including
 instructions for setup on
 [NVIDIA IGX](https://www.nvidia.com/en-us/edge-computing/products/igx/) and
 [NVIDIA AGX](https://developer.nvidia.com/embedded/learn/jetson-agx-orin-devkit-user-guide/index.html)
@@ -27,7 +27,7 @@ link:
 ## Troubleshooting
 
 Be sure and check the
-[release notes](https://docs.nvidia.com/holoscan/sensor-bridge/2.6.0/release_notes.html)
+[release notes](https://archive.docs.nvidia.com/holoscan/sensor-bridge/2.6.0/release_notes.html)
 for frequently asked questions and troubleshooting tips.
 
 ## Submitting changes

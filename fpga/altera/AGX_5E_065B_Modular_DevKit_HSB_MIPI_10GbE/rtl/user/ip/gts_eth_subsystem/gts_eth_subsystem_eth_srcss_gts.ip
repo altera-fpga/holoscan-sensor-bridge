@@ -10,7 +10,7 @@ the Altera FPGA IP License Agreement, or other applicable license
 agreement, including, without limitation, that your use is for
 the sole purpose of programming logic devices manufactured by
 Altera and sold by Altera or its authorized distributors.-->
-<ipxact:component xmlns:altera="http://www.altera.com/XMLSchema/IPXact2014/extensions" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
+<ipxact:component xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014" xmlns:altera="http://www.altera.com/XMLSchema/IPXact2014/extensions">
   <ipxact:vendor>Altera Corporation</ipxact:vendor>
   <ipxact:library>gts_eth_subsystem_eth_srcss_gts</ipxact:library>
   <ipxact:name>eth_srcss_gts</ipxact:name>

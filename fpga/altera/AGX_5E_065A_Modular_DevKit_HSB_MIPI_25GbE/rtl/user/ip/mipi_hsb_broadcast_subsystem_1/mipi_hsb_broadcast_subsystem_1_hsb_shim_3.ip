@@ -10,7 +10,7 @@ the Altera FPGA IP License Agreement, or other applicable license
 agreement, including, without limitation, that your use is for
 the sole purpose of programming logic devices manufactured by
 Altera and sold by Altera or its authorized distributors.-->
-<ipxact:component xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014" xmlns:altera="http://www.altera.com/XMLSchema/IPXact2014/extensions">
+<ipxact:component xmlns:altera="http://www.altera.com/XMLSchema/IPXact2014/extensions" xmlns:ipxact="http://www.accellera.org/XMLSchema/IPXACT/1685-2014">
   <ipxact:vendor>Altera</ipxact:vendor>
   <ipxact:library>mipi_hsb_broadcast_subsystem_1_hsb_shim_3</ipxact:library>
   <ipxact:name>hsb_shim_3</ipxact:name>

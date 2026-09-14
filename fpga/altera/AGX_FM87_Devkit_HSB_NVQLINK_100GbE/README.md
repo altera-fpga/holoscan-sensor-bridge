@@ -439,7 +439,7 @@ quartus_sh -t build_shell.tcl -qsys_gen -hw_compile
 ### Pre-Built Binaries
 
 Pre-built `SOF` and `JIC` binaries can be found as assets in this repository under the release tag:
-https://github.com/altera-fpga/holoscan-sensor-bridge/releases/tag/altera-release-2.6.0-3
+https://github.com/altera-fpga/holoscan-sensor-bridge/releases/tag/altera-release-2.6.0-4
 
 | Product | Type | Description |
 |:-----:|:-----:|:-----:|
